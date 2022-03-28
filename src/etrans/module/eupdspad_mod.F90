@@ -55,7 +55,7 @@ SUBROUTINE EUPDSPAD(KM,KF_UV,KF_SCALARS,PFFT,PVODI, &
 !     ------------------------------------------------------------------
 
 USE PARKIND1  ,ONLY : JPIM     ,JPRB
-USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK, JPHOOK
+USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK
 
 !USE TPM_DIM
 USE TPM_TRANS       ,ONLY : NF_SC2, NF_SC3A, NF_SC3B
@@ -83,7 +83,7 @@ INTEGER(KIND=JPIM),OPTIONAL,INTENT(IN)    :: KFLDPTRSC(:)
 
 INTEGER(KIND=JPIM) :: IVORS, IVORE, IDIVS, IDIVE, IST ,IEND
 INTEGER(KIND=JPIM) :: IDIM1,IDIM3,J3
-REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
+REAL(KIND=JPRB) :: ZHOOK_HANDLE
 
 !     ------------------------------------------------------------------
 

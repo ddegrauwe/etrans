@@ -33,7 +33,7 @@ SUBROUTINE EFTDIRAD(PREEL,KFIELDS,KGL)
 !     ------------------------------------------------------------------
 
 USE PARKIND1  ,ONLY : JPIM, JPRB
-USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK, JPHOOK
+USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK
 
 USE TPM_DISTR       ,ONLY : D, MYSETW
 !USE TPM_TRANS
@@ -55,7 +55,7 @@ INTEGER(KIND=JPIM) :: IGLG,IST,ILEN,IJUMP,JJ,JF,ILOEN
 INTEGER(KIND=JPIM) :: IOFF,IRLEN,ICLEN,ITYPE
 LOGICAL :: LL_ALL=.FALSE. ! T=do kfields ffts in one batch, F=do kfields ffts one at a time
 REAL(KIND=JPRB) :: ZNORM
-REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
+REAL(KIND=JPRB) :: ZHOOK_HANDLE
 !     ------------------------------------------------------------------
 
 IF (LHOOK) CALL DR_HOOK('EFTDIRAD_MOD:EFTDIRAD',0,ZHOOK_HANDLE)

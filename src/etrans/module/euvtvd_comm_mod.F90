@@ -53,7 +53,7 @@ SUBROUTINE EUVTVD_COMM(KM,KMLOC,KFIELD,KFLDPTR,PU,PV,PVOR,PDIV,PSPMEANU,PSPMEANV
 !     ------------------------------------------------------------------
 
 USE PARKIND1  ,ONLY : JPIM     ,JPRB
-USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK, JPHOOK
+USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK
 
 USE TPM_DIM
 USE TPM_FIELDS
@@ -79,7 +79,7 @@ INTEGER(KIND=JPIM) :: ISENDREQ(NPRTRW)
 REAL(KIND=JPRB) :: ZSPU(2*KFIELD)
 REAL(KIND=JPRB) :: ZIN
 INTEGER(KIND=JPIM) :: JA,ITAG,ILEN,IFLD,ISND
-REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
+REAL(KIND=JPRB) :: ZHOOK_HANDLE
 
 !     ------------------------------------------------------------------
 
@@ -89,20 +89,28 @@ IF (LHOOK) CALL DR_HOOK('EUVTVD_COMM_MOD:EUVTVD_COMM',0,ZHOOK_HANDLE)
 !              ------------------------------------------
 
 IF (KM == 0) THEN
+!$acc data copyout (PSPMEANU, PSPMEANV) 
+!$acc data copyin (KFLDPTR) if(present (KFLDPTR))
   IF (PRESENT(KFLDPTR)) THEN
+!$acc parallel loop present (PU, PV)
     DO J = 1, KFIELD
       IR = 2*J-1
       IFLD=KFLDPTR(J)
       PSPMEANU(IFLD)=PU(1,IR)
       PSPMEANV(IFLD)=PV(1,IR)
     ENDDO
+!$acc end parallel loop 
   ELSE
+!$acc parallel loop present (PU, PV)
     DO J = 1, KFIELD
       IR = 2*J-1
       PSPMEANU(J)=PU(1,IR)
       PSPMEANV(J)=PV(1,IR)
     ENDDO
+!$acc end parallel loop 
   ENDIF
+!$acc end data
+!$acc end data
 ENDIF
 IF (NPRTRW > 1 .AND. KFIELD > 0) THEN
   IF (KM == 0) THEN

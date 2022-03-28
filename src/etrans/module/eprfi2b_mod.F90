@@ -1,6 +1,6 @@
 MODULE EPRFI2B_MOD
 CONTAINS
-SUBROUTINE EPRFI2B(KFIELD,KM,KMLOC,PFFT)
+SUBROUTINE EPRFI2B(KFIELD,PFFT)
 
 !**** *EPRFI2B* - Prepare input work arrays for direct transform
 
@@ -48,23 +48,24 @@ SUBROUTINE EPRFI2B(KFIELD,KM,KMLOC,PFFT)
 !        M.Hamrud      01-Oct-2003 CY28 Cleaning
 !     ------------------------------------------------------------------
 
-USE PARKIND1  ,ONLY : JPIM     ,JPRB
-USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK, JPHOOK
+USE PARKIND1  ,ONLY : JPIM     ,JPRB       ,JPRBT
+USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK
 
-USE TPM_DIM         ,ONLY : R
+USE TPM_DIM         ,ONLY : R, R_NDGNH, R_NDGL
 USE TPM_TRANS       ,ONLY : FOUBUF
-!USE TPM_GEOMETRY
-USE TPM_DISTR       ,ONLY : D
-!USE TPMALD_DIM      ,ONLY : RALD
+USE TPM_GEOMETRY    ,ONLY : G, G_NDGLU
+USE TPM_DISTR       ,ONLY : D,D_NUMP,D_MYMS,D_NSTAGT1B,D_NPROCL,D_NPNTGTB1,MYPROC
 !
 
 IMPLICIT NONE
 
-INTEGER(KIND=JPIM),INTENT(IN)  :: KFIELD,KM,KMLOC
-REAL(KIND=JPRB)  , INTENT(OUT) :: PFFT(:,:)
-INTEGER(KIND=JPIM) ::  ISTAN, JF, JGL
-INTEGER(KIND=JPIM) :: IJR,IJI
-REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
+INTEGER(KIND=JPIM),INTENT(IN)  :: KFIELD
+REAL(KIND=JPRBT)  , INTENT(OUT) :: PFFT(:,:,:)
+
+INTEGER(KIND=JPIM) :: IM, JM
+INTEGER(KIND=JPIM) :: ISTAN, JF, JGL
+INTEGER(KIND=JPIM) :: IJR, IJI
+REAL(KIND=JPRB) :: ZHOOK_HANDLE
 
 !     ------------------------------------------------------------------
 
@@ -73,17 +74,28 @@ IF (LHOOK) CALL DR_HOOK('EPRFI2B_MOD:EPRFI2B',0,ZHOOK_HANDLE)
 !*       1.    EXTRACT SYM./ANTISYM. FIELDS FROM FOURIER ARRAY.
 !              ------------------------------------------------
 
-!DIR$ IVDEP
-!OCL    NOVREC
-DO JGL=1,R%NDGL
-  ISTAN = (D%NSTAGT1B(D%NPROCL(JGL) )+D%NPNTGTB1(KMLOC,JGL ))*2*KFIELD
-  DO JF =1,KFIELD
-    IJR = 2*(JF-1)+1
-    IJI = IJR+1
-    PFFT(JGL,IJR) = FOUBUF(ISTAN+IJR)
-    PFFT(JGL,IJI) = FOUBUF(ISTAN+IJI)
+!$acc data &
+!$acc& present(PFFT) &
+!$acc& present(FOUBUF) &
+!$acc& copy(R_NDGL,D_NSTAGT1B,D_NPNTGTB1,D_NPROCL,D_NUMP,D_MYMS,G_NDGLU)
+  
+!loop over wavenumber
+!$acc parallel loop collapse(3) private(ISTAN,IM,IJR,IJI,JM)
+DO JF =1,KFIELD
+  DO JM = 1, D_NUMP
+    DO JGL=1,R_NDGL
+      IM = D_MYMS(JM)
+      IJR = 2*(JF-1)+1
+      IJI = IJR+1
+      ISTAN = (D_NSTAGT1B(D_NPROCL(JGL) )+D_NPNTGTB1(JM,JGL))*2*KFIELD
+      PFFT(JGL,JM,IJR) = FOUBUF(ISTAN+IJR)
+      PFFT(JGL,JM,IJI) = FOUBUF(ISTAN+IJI)
+    ENDDO
   ENDDO
 ENDDO
+
+!$acc end data
+
 IF (LHOOK) CALL DR_HOOK('EPRFI2B_MOD:EPRFI2B',1,ZHOOK_HANDLE)
 
 !     ------------------------------------------------------------------

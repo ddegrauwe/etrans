@@ -38,7 +38,7 @@ SUBROUTINE ESPECNORM(PSPEC,KVSET,KMASTER,KRESOL,PMET,PNORM)
 !     ------------------------------------------------------------------
 
 USE PARKIND1  ,ONLY : JPIM     ,JPRB
-USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK, JPHOOK
+USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK
 
 !ifndef INTERFACE
 
@@ -65,7 +65,7 @@ REAL(KIND=JPRB)   ,OPTIONAL,INTENT(OUT)   :: PNORM(:)
 !ifndef INTERFACE
 
 INTEGER(KIND=JPIM) :: IMASTER,IFLD,IFLD_G,J
-REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
+REAL(KIND=JPRB) :: ZHOOK_HANDLE
 
 !     ------------------------------------------------------------------
 

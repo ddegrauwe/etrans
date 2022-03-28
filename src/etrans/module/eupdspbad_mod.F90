@@ -46,7 +46,7 @@ SUBROUTINE EUPDSPBAD(KM,KFIELD,POA,PSPEC,KFLDPTR)
 !     ------------------------------------------------------------------
 
 USE PARKIND1  ,ONLY : JPIM     ,JPRB
-USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK, JPHOOK
+USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK
 
 !USE TPM_DIM
 !USE TPM_FIELDS
@@ -63,7 +63,7 @@ REAL(KIND=JPRB)   ,INTENT(INOUT) :: PSPEC(:,:)
 INTEGER(KIND=JPIM),INTENT(IN),OPTIONAL :: KFLDPTR(:)
 
 INTEGER(KIND=JPIM) :: II, INM, IR, JFLD, JN,IFLD
-REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
+REAL(KIND=JPRB) :: ZHOOK_HANDLE
 
 !     ------------------------------------------------------------------
 

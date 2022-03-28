@@ -104,7 +104,7 @@ SUBROUTINE EDIR_TRANS(PSPVOR,PSPDIV,PSPSCALAR,PSPSC3A,PSPSC3B,PSPSC2,&
 !     ------------------------------------------------------------------
 
 USE PARKIND1  ,ONLY : JPIM     ,JPRB
-USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK, JPHOOK
+USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK
 
 !ifndef INTERFACE
 
@@ -116,6 +116,7 @@ USE TPM_DISTR       ,ONLY : D, NPRTRV, MYSETV
 USE ESET_RESOL_MOD  ,ONLY : ESET_RESOL
 USE EDIR_TRANS_CTL_MOD ,ONLY : EDIR_TRANS_CTL
 USE ABORT_TRANS_MOD ,ONLY : ABORT_TRANS
+USE MPI, ONLY : MPI_BARRIER, MPI_COMM_WORLD
 
 !endif INTERFACE
 
@@ -152,7 +153,8 @@ OPTIONAL AUX_PROC
 INTEGER(KIND=JPIM) :: IUBOUND(4),J
 INTEGER(KIND=JPIM) :: IF_UV,IF_UV_G,IF_SCALARS,IF_SCALARS_G,IF_FS,IF_GP
 INTEGER(KIND=JPIM) :: IF_SC2_G,IF_SC3A_G,IF_SC3B_G
-REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
+INTEGER(KIND=JPIM) :: IERROR
+REAL(KIND=JPRB) :: ZHOOK_HANDLE
 
 !     ------------------------------------------------------------------
 
@@ -488,10 +490,43 @@ CALL GSTATS(1808,1)
 
 !     ------------------------------------------------------------------
 
+
+call MPI_BARRIER(MPI_COMM_WORLD,IERROR)
+#ifdef USE_CUDA_AWARE_MPI_EFTDIR
+!$ACC data copyin (PGP  ) if (present (PGP  ))
+!$ACC data copyin (PGPUV) if (present (PGPUV))
+!$ACC data copyin (PGP3A) if (present (PGP3A))
+!$ACC data copyin (PGP3B) if (present (PGP3B))
+!$ACC data copyin (PGP2 ) if (present (PGP2 ))
+#endif
+!$ACC data copyout (PSPVOR   ) if (present (PSPVOR   ))
+!$ACC data copyout (PSPDIV   ) if (present (PSPDIV   ))
+!$ACC data copyout (PSPSCALAR) if (present (PSPSCALAR))
+!$ACC data copyout (PSPSC3A  ) if (present (PSPSC3A  ))
+!$ACC data copyout (PSPSC3B  ) if (present (PSPSC3B  ))
+!$ACC data copyout (PSPSC2   ) if (present (PSPSC2   ))
+call MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 CALL EDIR_TRANS_CTL(IF_UV_G,IF_SCALARS_G,IF_GP,IF_FS,IF_UV,IF_SCALARS,&
  & PSPVOR,PSPDIV,PSPSCALAR,KVSETUV,KVSETSC,PGP,&
  & PSPSC3A,PSPSC3B,PSPSC2,KVSETSC3A,KVSETSC3B,KVSETSC2,PGPUV,PGP3A,PGP3B,PGP2,&
  & PMEANU,PMEANV,AUX_PROC)
+call MPI_BARRIER(MPI_COMM_WORLD,IERROR)
+!$ACC end data
+!$ACC end data
+!$ACC end data
+!$ACC end data
+!$ACC end data
+!$ACC end data
+#ifdef USE_CUDA_AWARE_MPI_EFTDIR
+!$ACC end data
+!$ACC end data
+!$ACC end data
+!$ACC end data
+!$ACC end data
+#endif
+
+call MPI_BARRIER(MPI_COMM_WORLD,IERROR)
+
 IF (LHOOK) CALL DR_HOOK('EDIR_TRANS',1,ZHOOK_HANDLE)
 
 !     ------------------------------------------------------------------

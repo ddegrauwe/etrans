@@ -1,13 +1,13 @@
 MODULE EPRFI1B_MOD
 CONTAINS
-SUBROUTINE EPRFI1B(KM,PIA,PSPEC,KFIELDS,KFLDPTR)
+SUBROUTINE EPRFI1B(PFFT,PSPEC,KFIELDS,KFLDPTR)
 
 USE PARKIND1  ,ONLY : JPIM     ,JPRB
-USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK, JPHOOK
+USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK
 
 !USE TPM_DIM
-!USE TPM_DISTR
-USE TPMALD_DISTR    ,ONLY : DALD
+USE TPM_DISTR
+USE TPMALD_DISTR    ,ONLY : DALD, DALD_NESM0, DALD_NCPL2M
 !
 !**** *PRFI1* - Prepare spectral fields for inverse Legendre transform
 
@@ -54,13 +54,14 @@ USE TPMALD_DISTR    ,ONLY : DALD
 
 IMPLICIT NONE
 
-INTEGER(KIND=JPIM),INTENT(IN)   :: KM,KFIELDS
+INTEGER(KIND=JPIM),INTENT(IN)   :: KFIELDS
 REAL(KIND=JPRB)   ,INTENT(IN)   :: PSPEC(:,:)
-REAL(KIND=JPRB)   ,INTENT(OUT)  :: PIA(:,:)
+REAL(KIND=JPRB)   ,INTENT(OUT)  :: PFFT(:,:,:)
 INTEGER(KIND=JPIM),INTENT(IN),OPTIONAL :: KFLDPTR(:)
 
 INTEGER(KIND=JPIM) :: II, INM, IR, J, JFLD, ILCM, IOFF,IFLD
-REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
+INTEGER(KIND=JPIM) :: IM, JM, MAX_NCPL2M
+REAL(KIND=JPRB) :: ZHOOK_HANDLE
 
 !     ------------------------------------------------------------------
 
@@ -68,40 +69,60 @@ REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
 !              --------------------------------------------------
 
 IF (LHOOK) CALL DR_HOOK('EPRFI1B_MOD:EPRFI1B',0,ZHOOK_HANDLE)
-ILCM = DALD%NCPL2M(KM)
-IOFF = DALD%NESM0(KM)
+
+!$acc data present (PFFT, PSPEC)
+
+!$acc kernels default(none)
+PFFT = 0._JPRB
+!$acc end kernels
 
 IF(PRESENT(KFLDPTR)) THEN
+  ! TODO 
   DO JFLD=1,KFIELDS
     IR = 2*(JFLD-1)+1
     II = IR+1
     IFLD = KFLDPTR(JFLD)
-    DO J=1,ILCM,2
-      INM = IOFF+(J-1)*2
-      PIA(J  ,IR) = PSPEC(IFLD,INM  )
-      PIA(J+1,IR) = PSPEC(IFLD,INM+1)
-      PIA(J  ,II) = PSPEC(IFLD,INM+2)
-      PIA(J+1,II) = PSPEC(IFLD,INM+3)
+    DO JM = 1, D%NUMP
+      IM   = D%MYMS(JM)
+      ILCM = DALD%NCPL2M(IM)
+      IOFF = DALD%NESM0(IM)
+      DO J=1,ILCM,2
+        INM = IOFF+(J-1)*2
+        PFFT(J  ,JM,IR) = PSPEC(IFLD,INM  )
+        PFFT(J+1,JM,IR) = PSPEC(IFLD,INM+1)
+        PFFT(J  ,JM,II) = PSPEC(IFLD,INM+2)
+        PFFT(J+1,JM,II) = PSPEC(IFLD,INM+3)
+      ENDDO
     ENDDO
   ENDDO
-
 ELSE
-  DO J=1,ILCM,2
-    INM = IOFF+(J-1)*2
-    !DIR$ IVDEP
-    !OCL NOVREC
-    !cdir unroll=4
-    DO JFLD=1,KFIELDS
-      IR = 2*(JFLD-1)+1
-      II = IR+1
-      PIA(J  ,IR) = PSPEC(JFLD,INM  )
-      PIA(J+1,IR) = PSPEC(JFLD,INM+1)
-      PIA(J  ,II) = PSPEC(JFLD,INM+2)
-      PIA(J+1,II) = PSPEC(JFLD,INM+3)
+  MAX_NCPL2M = MAXVAL (DALD_NCPL2M)
+  !$ACC parallel loop collapse(3) &
+  !$ACC& present(D_MYMS,DALD_NCPL2M,DALD_NESM0) &
+  !$ACC& present(PFFT,PSPEC) &
+  !$ACC& private(IR,II,IM,ILCM,IOFF,INM) default(none)
+  DO JFLD=1,KFIELDS
+    DO JM = 1, D_NUMP
+      DO J=1,MAX_NCPL2M,2
+       IR = 2*(JFLD-1)+1
+       II = IR+1
+       IM   = D_MYMS(JM)
+       ILCM = DALD_NCPL2M(IM)
+       if (J > ILCM) CYCLE
+       IOFF = DALD_NESM0(IM)
+       INM = IOFF+(J-1)*2
+       PFFT(J  ,JM,IR) = PSPEC(JFLD,INM  )
+       PFFT(J+1,JM,IR) = PSPEC(JFLD,INM+1)
+       PFFT(J  ,JM,II) = PSPEC(JFLD,INM+2)
+       PFFT(J+1,JM,II) = PSPEC(JFLD,INM+3)
+      ENDDO
     ENDDO
   ENDDO
-
 ENDIF
+
+!$acc end data
+
+
 IF (LHOOK) CALL DR_HOOK('EPRFI1B_MOD:EPRFI1B',1,ZHOOK_HANDLE)
 
 !     ------------------------------------------------------------------

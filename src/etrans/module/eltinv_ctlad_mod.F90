@@ -45,7 +45,7 @@ SUBROUTINE ELTINV_CTLAD(KF_OUT_LT,KF_UV,KF_SCALARS,KF_SCDERS,&
 !        thread-safety
 !     ------------------------------------------------------------------
 USE PARKIND1  ,ONLY : JPIM     ,JPRB
-USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK, JPHOOK
+USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK
 USE TPM_GEN         ,ONLY : LALLOPERM
 !USE TPM_DIM
 USE TPM_TRANS       ,ONLY : FOUBUF, FOUBUF_IN
@@ -75,7 +75,7 @@ EXTERNAL  FSPGL_PROC
 OPTIONAL  FSPGL_PROC
 
 INTEGER(KIND=JPIM) :: IBLEN, ILEI2
-REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
+REAL(KIND=JPRB) :: ZHOOK_HANDLE
 
 !     ------------------------------------------------------------------
 

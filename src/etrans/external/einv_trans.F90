@@ -114,7 +114,7 @@ SUBROUTINE EINV_TRANS(PSPVOR,PSPDIV,PSPSCALAR,PSPSC3A,PSPSC3B,PSPSC2,&
 !     ------------------------------------------------------------------
 
 USE PARKIND1  ,ONLY : JPIM     ,JPRB
-USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK, JPHOOK
+USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK
 
 !ifndef INTERFACE
 
@@ -130,6 +130,7 @@ USE TPM_DISTR       ,ONLY : D, NPRTRV, MYSETV
 USE ESET_RESOL_MOD  ,ONLY : ESET_RESOL
 USE EINV_TRANS_CTL_MOD ,ONLY : EINV_TRANS_CTL
 USE ABORT_TRANS_MOD ,ONLY : ABORT_TRANS
+USE MPI, ONLY : MPI_COMM_WORLD, MPI_BARRIER
 
 !endif INTERFACE
 
@@ -169,8 +170,8 @@ OPTIONAL  FSPGL_PROC
 INTEGER(KIND=JPIM) :: IUBOUND(4),J
 INTEGER(KIND=JPIM) :: IF_UV,IF_UV_G,IF_SCALARS,IF_SCALARS_G,IF_FS,IF_GP,IF_OUT_LT
 INTEGER(KIND=JPIM) :: IF_SCDERS,IF_UV_PAR
-INTEGER(KIND=JPIM) :: IF_SC2_G,IF_SC3A_G2,IF_SC3A_G3,IF_SC3B_G2,IF_SC3B_G3
-REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
+INTEGER(KIND=JPIM) :: IF_SC2_G,IF_SC3A_G2,IF_SC3A_G3,IF_SC3B_G2,IF_SC3B_G3, IERROR
+REAL(KIND=JPRB) :: ZHOOK_HANDLE
 !     ------------------------------------------------------------------
 
 IF (LHOOK) CALL DR_HOOK('EINV_TRANS',0,ZHOOK_HANDLE)
@@ -591,12 +592,47 @@ CALL GSTATS(1807,1)
 
 !     ------------------------------------------------------------------
 
+call MPI_BARRIER(MPI_COMM_WORLD,IERROR)
+
+!$ACC data copyin (PSPVOR   ) if (present (PSPVOR   ))
+!$ACC data copyin (PSPDIV   ) if (present (PSPDIV   ))
+!$ACC data copyin (PSPSCALAR) if (present (PSPSCALAR))
+!$ACC data copyin (PSPSC3A  ) if (present (PSPSC3A  ))
+!$ACC data copyin (PSPSC3B  ) if (present (PSPSC3B  ))
+!$ACC data copyin (PSPSC2   ) if (present (PSPSC2   ))
+#ifdef USE_CUDA_AWARE_MPI_EFTINV
+!$ACC data copyout (PGP  ) if (present (PGP  ))
+!$ACC data copyout (PGPUV) if (present (PGPUV))
+!$ACC data copyout (PGP3A) if (present (PGP3A))
+!$ACC data copyout (PGP3B) if (present (PGP3B))
+!$ACC data copyout (PGP2 ) if (present (PGP2 ))
+#endif
 ! Perform transform
+
+call MPI_BARRIER(MPI_COMM_WORLD,IERROR)
 CALL EINV_TRANS_CTL(IF_UV_G,IF_SCALARS_G,IF_GP,IF_FS,IF_OUT_LT,&
  & IF_UV,IF_SCALARS,IF_SCDERS,&
  & PSPVOR,PSPDIV,PSPSCALAR,KVSETUV,KVSETSC,PGP,FSPGL_PROC,&
  & PSPSC3A,PSPSC3B,PSPSC2,KVSETSC3A,KVSETSC3B,KVSETSC2,PGPUV,PGP3A,PGP3B,PGP2,&
  & PMEANU,PMEANV )
+
+call MPI_BARRIER(MPI_COMM_WORLD,IERROR)
+#ifdef USE_CUDA_AWARE_MPI_EFTINV
+!$ACC end data
+!$ACC end data
+!$ACC end data
+!$ACC end data
+!$ACC end data
+#endif
+!$ACC end data
+!$ACC end data
+!$ACC end data
+!$ACC end data
+!$ACC end data
+!$ACC end data
+
+call MPI_BARRIER(MPI_COMM_WORLD,IERROR)
+
 IF (LHOOK) CALL DR_HOOK('EINV_TRANS',1,ZHOOK_HANDLE)
 
 !     ------------------------------------------------------------------

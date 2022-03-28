@@ -38,7 +38,7 @@ SUBROUTINE EGATH_GRID(PGPG,KPROMA,KFGATHG,KTO,KRESOL,PGP)
 !     ------------------------------------------------------------------
 
 USE PARKIND1  ,ONLY : JPIM     ,JPRB
-USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK, JPHOOK
+USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK
 
 !ifndef INTERFACE
 
@@ -65,7 +65,7 @@ REAL(KIND=JPRB)   ,INTENT(IN)    :: PGP(:,:,:)
 !ifndef INTERFACE
 
 INTEGER(KIND=JPIM) :: IFRECV,J,IUBOUND(3),IPROMA,IGPBLKS
-REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
+REAL(KIND=JPRB) :: ZHOOK_HANDLE
 
 !     ------------------------------------------------------------------
 

@@ -1,6 +1,6 @@
 MODULE EFSC_MOD
 CONTAINS
-SUBROUTINE EFSC(KGL,KF_UV,KF_SCALARS,KF_SCDERS,&
+SUBROUTINE EFSC(KF_UV,KF_SCALARS,KF_SCDERS,&
  & PUV,PSCALAR,PNSDERS,PEWDERS,PUVDERS)
 
 !**** *FSC - Division by a*cos(theta), east-west derivatives
@@ -38,18 +38,17 @@ SUBROUTINE EFSC(KGL,KF_UV,KF_SCALARS,KF_SCDERS,&
 !     ------------------------------------------------------------------
 
 USE PARKIND1  ,ONLY : JPIM     ,JPRB
-USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK, JPHOOK
+USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK
 
 USE TPM_TRANS       ,ONLY : LUVDER
-USE TPM_DISTR       ,ONLY : D, MYSETW
-!USE TPM_FIELDS
-USE TPM_GEOMETRY    ,ONLY : G
+USE TPM_DISTR       ,ONLY : D, MYSETW, D_NPTRLS, D_NSTAGTF
+USE TPM_GEOMETRY    ,ONLY : G, G_NMEN
 USE TPMALD_GEO      ,ONLY : GALD
 !
 
 IMPLICIT NONE
 
-INTEGER(KIND=JPIM) , INTENT(IN) :: KGL,KF_UV,KF_SCALARS,KF_SCDERS
+INTEGER(KIND=JPIM) , INTENT(IN) :: KF_UV,KF_SCALARS,KF_SCDERS
 REAL(KIND=JPRB) , INTENT(INOUT) :: PUV(:,:)
 REAL(KIND=JPRB) , INTENT(IN   ) :: PSCALAR(:,:)
 REAL(KIND=JPRB) , INTENT(INOUT) :: PNSDERS(:,:)
@@ -58,50 +57,62 @@ REAL(KIND=JPRB) , INTENT(  OUT) :: PUVDERS(:,:)
 
 INTEGER(KIND=JPIM) :: IMEN,ISTAGTF
 
-INTEGER(KIND=JPIM) :: JF,IGLG,II,IR,JM
+INTEGER(KIND=JPIM) :: JF,IGLG,II,IR,JM,JGL
 REAL(KIND=JPRB) :: ZIM
-REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
+REAL(KIND=JPRB) :: ZHOOK_HANDLE
 !     ------------------------------------------------------------------
 
 IF (LHOOK) CALL DR_HOOK('EFSC_MOD:EFSC',0,ZHOOK_HANDLE)
-IGLG    = D%NPTRLS(MYSETW)+KGL-1
-IMEN    = G%NMEN(IGLG)
-ISTAGTF = D%NSTAGTF(KGL)
 
 !     ------------------------------------------------------------------
-
+  
 !*           EAST-WEST DERIVATIVES
 !              ---------------------
-
+  
 !*       2.1      U AND V.
-
+  
 IF(LUVDER)THEN
-  DO JM=0,IMEN
-    ZIM=REAL(JM,JPRB)*GALD%EXWN
-    IR = ISTAGTF+2*JM+1
-    II = IR+1
-! use unroll to provoke vectorization of outer loop
-!cdir unroll=4
-    DO JF=1,2*KF_UV
-      PUVDERS(JF,IR) = -PUV(JF,II)*ZIM
-      PUVDERS(JF,II) =  PUV(JF,IR)*ZIM
+!$acc parallel loop collapse (2) private (JF, JGL, IGLG, IMEN, ISTAGTF, JM, ZIM, IR, II) &
+!$acc & present (D_NPTRLS, G_NMEN, D_NSTAGTF, PUVDERS, PUV)
+  DO JF=1,2*KF_UV
+    DO JGL = 1, D%NDGL_FS
+      IGLG    = D_NPTRLS(MYSETW)+JGL-1
+      IMEN    = G_NMEN(IGLG)
+      ISTAGTF = D_NSTAGTF(JGL)
+      DO JM=0,IMEN
+        ZIM=REAL(JM,JPRB)*GALD%EXWN
+        IR = ISTAGTF+2*JM+1
+        II = IR+1
+        PUVDERS(IR,JF) = -PUV(II,JF)*ZIM
+        PUVDERS(II,JF) =  PUV(IR,JF)*ZIM
+      ENDDO
     ENDDO
   ENDDO
+!$acc end parallel loop
 ENDIF
-
+  
 !*       2.2     SCALAR VARIABLES
-
+  
 IF(KF_SCDERS > 0)THEN
-  DO JM=0,IMEN
-    ZIM=REAL(JM,JPRB)*GALD%EXWN
-    IR = ISTAGTF+2*JM+1
-    II = IR+1
-    DO JF=1,KF_SCALARS
-      PEWDERS(JF,IR) = -PSCALAR(JF,II)*ZIM
-      PEWDERS(JF,II) =  PSCALAR(JF,IR)*ZIM
+!$acc parallel loop collapse (2) private (JF, JGL, IGLG, IMEN, ISTAGTF, JM, ZIM, IR, II) &
+!$acc & present (D_NPTRLS, G_NMEN, D_NSTAGTF, PEWDERS, PSCALAR)
+  DO JF=1,KF_SCALARS
+    DO JGL = 1, D%NDGL_FS
+      IGLG    = D_NPTRLS(MYSETW)+JGL-1
+      IMEN    = G_NMEN(IGLG)
+      ISTAGTF = D_NSTAGTF(JGL)
+      DO JM=0,IMEN
+        ZIM=REAL(JM,JPRB)*GALD%EXWN
+        IR = ISTAGTF+2*JM+1
+        II = IR+1
+        PEWDERS(IR,JF) = -PSCALAR(II,JF)*ZIM
+        PEWDERS(II,JF) =  PSCALAR(IR,JF)*ZIM
+      ENDDO
     ENDDO
   ENDDO
+!$acc end parallel loop
 ENDIF
+
 IF (LHOOK) CALL DR_HOOK('EFSC_MOD:EFSC',1,ZHOOK_HANDLE)
 
 !     ------------------------------------------------------------------
