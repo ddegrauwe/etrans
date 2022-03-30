@@ -48,8 +48,9 @@ SUBROUTINE EPRFI2B(KFIELD,PFFT)
 !        M.Hamrud      01-Oct-2003 CY28 Cleaning
 !     ------------------------------------------------------------------
 
-USE PARKIND1  ,ONLY : JPIM     ,JPRB       ,JPRBT
-USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK
+USE PARKIND1  ,ONLY : JPIM     ,JPRB
+USE PARKIND_ECTRANS, ONLY : JPRBT
+USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK, JPHOOK
 
 USE TPM_DIM         ,ONLY : R, R_NDGNH, R_NDGL
 USE TPM_TRANS       ,ONLY : FOUBUF
@@ -65,7 +66,7 @@ REAL(KIND=JPRBT)  , INTENT(OUT) :: PFFT(:,:,:)
 INTEGER(KIND=JPIM) :: IM, JM
 INTEGER(KIND=JPIM) :: ISTAN, JF, JGL
 INTEGER(KIND=JPIM) :: IJR, IJI
-REAL(KIND=JPRB) :: ZHOOK_HANDLE
+REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
 
 !     ------------------------------------------------------------------
 

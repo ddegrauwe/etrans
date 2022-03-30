@@ -39,7 +39,7 @@ SUBROUTINE ELEDIR(KFC,KLED2,PFFT)
 !     ------------------------------------------------------------------
 
 USE PARKIND1  ,ONLY : JPIM, JPRB
-USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK
+USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK, JPHOOK
 
 USE TPM_DISTR       ,ONLY : D, D_NUMP
 USE TPM_DIM         ,ONLY : R
@@ -74,7 +74,7 @@ CALL CREATE_PLAN_FFT (IPLAN_R2C, -1, KN=IRLEN, KLOT=UBOUND (PFFT,2)*UBOUND (PFFT
                     & KISTRIDE=1, KIDIST=ICLEN, KOSTRIDE=1, KODIST=ICLEN/2)
 
 !$acc host_data use_device (PFFT) 
-CALL EXECUTE_PLAN_FFTC(IPLAN_R2C, -1, PFFT (1, 1, 1))
+CALL EXECUTE_PLAN_FFTC_INPLACE(IPLAN_R2C, -1, PFFT (1, 1, 1))
 !$acc end host_data
 
 istat = cuda_Synchronize()

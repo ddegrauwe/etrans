@@ -52,7 +52,7 @@ SUBROUTINE ELEDIRAD(KM,KFC,KLED2,PFFT)
 !     ------------------------------------------------------------------
 
 USE PARKIND1  ,ONLY : JPIM     ,JPRB
-USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK
+USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK, JPHOOK
 
 USE TPM_DIM         ,ONLY : R
 !USE TPM_GEOMETRY
@@ -72,7 +72,7 @@ REAL(KIND=JPRB),   INTENT(INOUT)  :: PFFT(:,:)
 
 INTEGER(KIND=JPIM) :: JF, JJ
 REAL(KIND=JPRB) :: ZNORM
-REAL(KIND=JPRB) :: ZHOOK_HANDLE
+REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
 
 !     ------------------------------------------------------------------
 

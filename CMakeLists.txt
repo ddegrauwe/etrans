@@ -15,6 +15,12 @@ ecbuild_enable_fortran( REQUIRED MODULE_DIRECTORY ${PROJECT_BINARY_DIR}/module )
 # dependencies:
 ecbuild_find_package( fiat REQUIRED )
 ecbuild_find_package( ectrans REQUIRED )
+find_package( OpenACC REQUIRED )
+
+enable_language( CUDA )
+set( OpenACC_Fortran_FLAGS "-acc" )
+set( OpenACC_Fortran_FLAGS "${OpenACC_Fortran_FLAGS} -ta=tesla:lineinfo,deepcopy,fastmath" )
+set( OpenACC_Fortran_FLAGS "${OpenACC_Fortran_FLAGS} -Mcuda" )
 
 ############################################################################################
 # build etrans library

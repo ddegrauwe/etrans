@@ -40,7 +40,7 @@ SUBROUTINE EDIST_SPEC(PSPECG,KFDISTG,KFROM,KVSET,KRESOL,PSPEC,&
 !     ------------------------------------------------------------------
 
 USE PARKIND1  ,ONLY : JPIM     ,JPRB
-USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK
+USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK, JPHOOK
 
 !ifndef INTERFACE
 
@@ -75,7 +75,7 @@ INTEGER(KIND=JPIM) :: ISMAX, ISPEC2, ISPEC2_G
 INTEGER(KIND=JPIM) :: IPOSSP(NPRTRW+1)
 INTEGER(KIND=JPIM), ALLOCATABLE :: IDIM0G(:)
 LOGICAL :: LLDIM1_IS_FLD
-REAL(KIND=JPRB) :: ZHOOK_HANDLE
+REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
 !     ------------------------------------------------------------------
 
 ! Set current resolution

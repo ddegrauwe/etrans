@@ -34,14 +34,15 @@ SUBROUTINE EFTINV(PREEL,KFIELDS)
 !        G. Mozdzynski (Jun 2015): Support alternative FFTs to FFTW
 !     ------------------------------------------------------------------
 
-USE PARKIND1  ,ONLY : JPIM, JPRBT, JPRB
-USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK
+USE PARKIND1  ,ONLY : JPIM, JPRB
+USE PARKIND_ECTRANS, ONLY : JPRBT
+USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK, JPHOOK
 
 USE TPM_DISTR       ,ONLY : D, MYSETW,  MYPROC, NPROC
 USE TPM_GEOMETRY    ,ONLY : G
 use tpm_gen, only: nout
-USE TPM_FFT         ,ONLY : T, TB
-USE BLUESTEIN_MOD   ,ONLY : BLUESTEIN_FFT
+USE TPM_FFT         ,ONLY : T !, TB
+!USE BLUESTEIN_MOD   ,ONLY : BLUESTEIN_FFT
 #ifdef WITH_FFTW
 USE TPM_FFTW        ,ONLY : TW, EXEC_FFTW
 #endif
@@ -57,7 +58,7 @@ REAL (KIND=JPRBT),   INTENT(INOUT) :: PREEL(:,:)
 INTEGER(KIND=JPIM) :: IRLEN, ICLEN
 INTEGER(KIND=JPIM) :: IPLAN_C2R
 integer :: istat
-REAL(KIND=JPRB) :: ZHOOK_HANDLE
+REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
 
 !     ------------------------------------------------------------------
 
@@ -69,7 +70,7 @@ ICLEN=D%NLENGTF/D%NDGL_FS
 CALL CREATE_PLAN_FFT (IPLAN_C2R, +1, KN=IRLEN, KLOT=KFIELDS*D%NDGL_FS, &
                     & KISTRIDE=1, KIDIST=ICLEN/2, KOSTRIDE=1, KODIST=ICLEN)
 !$acc host_data use_device(PREEL)
-CALL EXECUTE_PLAN_FFTC (IPLAN_C2R, +1, PREEL (1, 1))
+CALL EXECUTE_PLAN_FFTC_INPLACE (IPLAN_C2R, +1, PREEL (1, 1))
 !$acc end host_data
 
 istat = cuda_Synchronize()

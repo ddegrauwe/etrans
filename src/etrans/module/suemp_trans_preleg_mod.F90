@@ -5,7 +5,7 @@ SUBROUTINE SUEMP_TRANS_PRELEG
 ! Set up distributed environment for the transform package (part 1)
 
 USE PARKIND1  ,ONLY : JPIM     ,JPRB
-USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK
+USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK, JPHOOK
 
 USE TPM_GEN         ,ONLY : NOUT, NPRINTLEV
 USE TPM_DIM         ,ONLY : R
@@ -30,7 +30,7 @@ INTEGER(KIND=JPIM) :: IKMTMP(0:R%NSMAX),ISPEC2P
 INTEGER(KIND=JPIM) :: IC(NPRTRW)
 INTEGER(KIND=JPIM) :: IMDIM,IL,IND,IK,IPOS,IKM
 REAL(KIND=JPRB) :: ZLEPDIM
-REAL(KIND=JPRB) :: ZHOOK_HANDLE
+REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
 
 !     ------------------------------------------------------------------
 

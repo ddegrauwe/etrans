@@ -53,7 +53,7 @@ SUBROUTINE EUVTVDAD(KM,KMLOC,KFIELD,KFLDPTR,PU,PV,PVOR,PDIV,PSPMEANU,PSPMEANV)
 !     ------------------------------------------------------------------
 
 USE PARKIND1  ,ONLY : JPIM     ,JPRB
-USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK
+USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK, JPHOOK
 
 USE TPM_DIM         ,ONLY : R
 !USE TPM_FIELDS
@@ -75,7 +75,7 @@ INTEGER(KIND=JPIM) :: II, IN, IR, J, JN, IFLD
 
 REAL(KIND=JPRB) :: ZKM
 REAL(KIND=JPRB) :: ZIN
-REAL(KIND=JPRB) :: ZHOOK_HANDLE
+REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
 
 !     ------------------------------------------------------------------
 

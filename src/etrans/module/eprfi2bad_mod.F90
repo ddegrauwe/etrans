@@ -49,7 +49,7 @@ SUBROUTINE EPRFI2BAD(KFIELD,KM,KMLOC,PFFT)
 !     ------------------------------------------------------------------
 
 USE PARKIND1  ,ONLY : JPIM     ,JPRB
-USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK
+USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK, JPHOOK
 
 USE TPM_DIM         ,ONLY : R
 !USE TPMALD_DIM      ,ONLY : RALD
@@ -66,7 +66,7 @@ REAL(KIND=JPRB)  , INTENT(IN)  :: PFFT(:,:)
 INTEGER(KIND=JPIM) :: ISTAN, JF, JGL
 
 INTEGER(KIND=JPIM) :: IJR,IJI
-REAL(KIND=JPRB) :: ZHOOK_HANDLE
+REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
 
 !     ------------------------------------------------------------------
 

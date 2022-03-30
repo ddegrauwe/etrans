@@ -112,7 +112,7 @@ SUBROUTINE ETRANS_INQ(KRESOL,KSPEC,KSPEC2,KSPEC2G,KSPEC2MX,KNUMP,&
 !     ------------------------------------------------------------------
 
 USE PARKIND1  ,ONLY : JPIM     ,JPRB
-USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK
+USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK, JPHOOK
 
 !ifndef INTERFACE
 
@@ -190,7 +190,7 @@ INTEGER(KIND=JPIM) :: IU1,IU2
 INTEGER(KIND=JPIM) :: IC, JN, JMLOC, IM, JJ, JM
 INTEGER(KIND=JPIM) :: ISMAX(0:R%NSMAX),ISNAX(0:RALD%NMSMAX),ICPLM(0:RALD%NMSMAX)
 
-REAL(KIND=JPRB) :: ZHOOK_HANDLE
+REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
 !     ------------------------------------------------------------------
 
 ! Set current resolution

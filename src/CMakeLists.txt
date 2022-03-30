@@ -62,6 +62,15 @@ foreach ( prec IN LISTS precs )
 	  target_compile_definitions( etrans_${prec} PRIVATE WITH_FFTW )
 	endif()
 	
+    target_compile_options( etrans_${prec} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:-g -acc -Minfo=acc -gpu=cc70,lineinfo,deepcopy,fastmath,nordc> )
+
+    target_link_libraries( etrans_${prec} PRIVATE OpenACC::OpenACC_Fortran )
+    set_property( TARGET etrans_${prec} PROPERTY CUDA_ARCHITECTURES 70 )
+
+    if( prec STREQUAL sp )
+        target_compile_definitions( etrans_${prec} PUBLIC TRANS_SINGLE PARKINDTRANS_SINGLE )
+    endif()
+
 	target_compile_definitions( etrans_${prec} PRIVATE USE_CUDA_AWARE_MPI_EFTDIR )
 
     set_target_properties( etrans_${prec} PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/module/etrans_${prec} )

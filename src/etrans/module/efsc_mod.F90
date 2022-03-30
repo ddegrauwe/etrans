@@ -38,7 +38,7 @@ SUBROUTINE EFSC(KF_UV,KF_SCALARS,KF_SCDERS,&
 !     ------------------------------------------------------------------
 
 USE PARKIND1  ,ONLY : JPIM     ,JPRB
-USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK
+USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK, JPHOOK
 
 USE TPM_TRANS       ,ONLY : LUVDER
 USE TPM_DISTR       ,ONLY : D, MYSETW, D_NPTRLS, D_NSTAGTF
@@ -59,7 +59,7 @@ INTEGER(KIND=JPIM) :: IMEN,ISTAGTF
 
 INTEGER(KIND=JPIM) :: JF,IGLG,II,IR,JM,JGL
 REAL(KIND=JPRB) :: ZIM
-REAL(KIND=JPRB) :: ZHOOK_HANDLE
+REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
 !     ------------------------------------------------------------------
 
 IF (LHOOK) CALL DR_HOOK('EFSC_MOD:EFSC',0,ZHOOK_HANDLE)

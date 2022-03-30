@@ -28,7 +28,8 @@ SUBROUTINE EFOURIER_IN(PREEL,KFIELDS)
 
 !     ------------------------------------------------------------------
 
-USE PARKIND1  ,ONLY : JPIM     ,JPRBT
+USE PARKIND1  ,ONLY : JPIM
+USE PARKIND_ECTRANS, ONLY : JPRBT
 
 USE TPM_DISTR       ,ONLY : D, MYSETW, MYPROC, NPROC, &
              & D_NSTAGTF, D_MSTABF, D_NSTAGT0B, D_NPNTGTB0, D_NPROCM, D_NPTRLS

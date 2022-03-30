@@ -24,7 +24,7 @@ SUBROUTINE ELTDIR_CTLAD(KF_FS,KF_UV,KF_SCALARS, &
 !     ------------------------------------------------------------------
 
 USE PARKIND1  ,ONLY : JPIM     ,JPRB
-USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK
+USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK, JPHOOK
 
 USE TPM_GEN         ,ONLY : LALLOPERM
 !USE TPM_DIM
@@ -50,7 +50,7 @@ REAL(KIND=JPRB) ,OPTIONAL, INTENT(INOUT) :: PSPMEANU(:)
 REAL(KIND=JPRB) ,OPTIONAL, INTENT(INOUT) :: PSPMEANV(:)
 
 INTEGER(KIND=JPIM) :: JM,IM,IBLEN,ILED2
-REAL(KIND=JPRB) :: ZHOOK_HANDLE
+REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
 
 !     ------------------------------------------------------------------
 

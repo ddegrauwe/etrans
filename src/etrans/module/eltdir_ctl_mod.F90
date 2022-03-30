@@ -29,7 +29,7 @@ SUBROUTINE ELTDIR_CTL(KF_FS,KF_UV,KF_SCALARS, &
 !     ------------------------------------------------------------------
 
 USE PARKIND1  ,ONLY : JPIM     ,JPRB
-USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK
+USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK, JPHOOK
 
 USE TPM_GEN         ,ONLY : LALLOPERM
 USE TPM_TRANS       ,ONLY : FOUBUF, FOUBUF_IN
@@ -57,7 +57,7 @@ OPTIONAL AUX_PROC
 
 INTEGER(KIND=JPIM) :: JM,IM,IBLEN,ILED2,INUL
 REAL(KIND=JPRB) :: ZDUM
-REAL(KIND=JPRB) :: ZHOOK_HANDLE
+REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
 !     ------------------------------------------------------------------
 
 ! Transposition from Fourier space distribution to spectral space distribution

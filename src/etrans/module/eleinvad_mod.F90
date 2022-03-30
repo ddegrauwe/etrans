@@ -49,7 +49,7 @@ SUBROUTINE ELEINVAD(KM,KFC,KF_OUT_LT,PIA)
 !     ------------------------------------------------------------------
 
 USE PARKIND1  ,ONLY : JPIM     ,JPRB
-USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK
+USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK, JPHOOK
 
 USE TPM_DIM         ,ONLY : R
 !USE TPM_GEOMETRY
@@ -68,7 +68,7 @@ REAL(KIND=JPRB),    INTENT(OUT)   :: PIA(:,:)
 
 INTEGER(KIND=JPIM) :: JJ, JF
 REAL(KIND=JPRB) :: ZNORM
-REAL(KIND=JPRB) :: ZHOOK_HANDLE
+REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
 
 !     ------------------------------------------------------------------
 

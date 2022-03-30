@@ -52,7 +52,7 @@ SUBROUTINE EFTDIR_CTL(KF_UV_G,KF_SCALARS_G,KF_GP,KF_FS,KF_GPB, &
 !     ------------------------------------------------------------------
 
 USE PARKIND1  ,ONLY : JPIM     ,JPRB
-USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK
+USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK, JPHOOK
 
 USE TPM_DIM          ,ONLY : R
 USE TPM_TRANS        ,ONLY : FOUBUF_IN
@@ -64,6 +64,8 @@ USE TRGTOL_MOD       ,ONLY : TRGTOL, TRGTOL_CUDAAWARE
 USE EFOURIER_OUT_MOD ,ONLY : EFOURIER_OUT
 USE EFTDIR_MOD       ,ONLY : EFTDIR
 USE EXTPER_MOD       ,ONLY : EXTPER
+use cudafor
+
 !
 
 IMPLICIT NONE
@@ -93,7 +95,7 @@ INTEGER(KIND=JPIM) :: IVSETUV(KF_UV_G)
 INTEGER(KIND=JPIM) :: IVSETSC(KF_SCALARS_G)
 INTEGER(KIND=JPIM) :: IVSET(KF_GP)
 INTEGER(KIND=JPIM) :: IFGP2,IFGP3A,IFGP3B,IOFF,J3
-REAL(KIND=JPRB) :: ZHOOK_HANDLE
+REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
 
 !     ------------------------------------------------------------------
 
@@ -114,6 +116,19 @@ IF (.NOT. ALLOCATED (ZGTF_PERM)) THEN
 ENDIF
 
 ZGTF => ZGTF_PERM (:, 1:KF_FS)
+
+#ifdef gnarls
+write (0,*) __FILE__, __LINE__; call flush(0)
+!$acc data present(zgtf)
+!$acc parallel loop collapse(2) default(none)
+do j3=lbound(zgtf,2),ubound(zgtf,2)
+  do ioff=lbound(zgtf,1),ubound(zgtf,1)
+    zgtf(ioff,j3)=0._jprbt
+  enddo
+enddo
+!$acc end data
+write (0,*) __FILE__, __LINE__; call flush(0)
+#endif
 
 IF(PRESENT(KVSETUV)) THEN
   IVSETUV(:) = KVSETUV(:)
@@ -163,6 +178,22 @@ ENDIF
 CALL GSTATS(158,0)
 
 #ifdef USE_CUDA_AWARE_MPI_EFTDIR
+
+write (0,*) __FILE__, __LINE__,'; cudaDeviceSynchronize returns ',cudaDeviceSynchronize(); call flush(0)
+
+#ifdef gnarls
+!$acc data present(zgtf)
+!$acc parallel loop collapse(2) default(none)
+do j3=lbound(zgtf,2),ubound(zgtf,2)
+  do ioff=lbound(zgtf,1),ubound(zgtf,1)
+    zgtf(ioff,j3)=0._jprbt
+  enddo
+enddo
+!$acc end data
+#endif
+
+write (0,*) __FILE__, __LINE__,'; cudaDeviceSynchronize returns ',cudaDeviceSynchronize(); call flush(0)
+
 CALL TRGTOL_CUDAAWARE(ZGTF,KF_FS,KF_GP,KF_SCALARS_G,IVSET,KPTRGP,&
  &PGP,PGPUV,PGP3A,PGP3B,PGP2,LDGW=.TRUE.)
 #else

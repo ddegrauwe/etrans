@@ -50,7 +50,7 @@ SUBROUTINE ELEINV(KFC,KF_OUT_LT,PFFT)
 !     ------------------------------------------------------------------
 
 USE PARKIND1  ,ONLY : JPIM, JPRB
-USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK
+USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK, JPHOOK
 
 USE TPM_DISTR       ,ONLY : D, D_NUMP
 USE TPM_DIM         ,ONLY : R
@@ -73,7 +73,7 @@ REAL (KIND=JPRB)   :: ZSCAL
 
 integer :: istat
 
-REAL(KIND=JPRB) :: ZHOOK_HANDLE
+REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
 
 !     ------------------------------------------------------------------
 
@@ -91,7 +91,7 @@ CALL CREATE_PLAN_FFT (IPLAN_C2R, +1, KN=IRLEN, KLOT=UBOUND (PFFT,2)*UBOUND (PFFT
 
 
 !$acc host_data use_device (PFFT) 
-CALL EXECUTE_PLAN_FFTC(IPLAN_C2R, +1, PFFT (1, 1, 1))
+CALL EXECUTE_PLAN_FFTC_INPLACE(IPLAN_C2R, +1, PFFT (1, 1, 1))
 !$acc end host_data
 
 istat = cuda_Synchronize()

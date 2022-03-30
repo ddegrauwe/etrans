@@ -56,8 +56,9 @@ SUBROUTINE EPRFI2(KF_FS,PFFT)
 !        M.Hamrud      01-Oct-2003 CY28 Cleaning
 !     ------------------------------------------------------------------
 
-USE PARKIND1  ,ONLY : JPIM     ,JPRBT
-USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK
+USE PARKIND1  ,ONLY : JPIM
+USE PARKIND_ECTRANS, ONLY : JPRBT
+USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK, JPHOOK
 
 !USE TPM_TRANS
 
