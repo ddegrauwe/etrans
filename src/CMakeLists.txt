@@ -71,7 +71,7 @@ foreach ( prec IN LISTS precs )
         target_compile_definitions( etrans_${prec} PUBLIC TRANS_SINGLE PARKINDTRANS_SINGLE )
     endif()
 
-	target_compile_definitions( etrans_${prec} PRIVATE USE_CUDA_AWARE_MPI_EFTDIR )
+	target_compile_definitions( etrans_${prec} PRIVATE USE_CUDA_AWARE_MPI_EFTDIR USE_CUDA_AWARE_MPI_ELTDIR USE_CUDA_AWARE_MPI_EFTINV USE_CUDA_AWARE_MPI_ELTINV )
 
     set_target_properties( etrans_${prec} PROPERTIES Fortran_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/module/etrans_${prec} )
     target_include_directories( etrans_${prec} PUBLIC $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/module/etrans_${prec}> )

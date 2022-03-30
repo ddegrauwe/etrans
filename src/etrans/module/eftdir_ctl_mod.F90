@@ -179,7 +179,7 @@ CALL GSTATS(158,0)
 
 #ifdef USE_CUDA_AWARE_MPI_EFTDIR
 
-write (0,*) __FILE__, __LINE__,'; cudaDeviceSynchronize returns ',cudaDeviceSynchronize(); call flush(0)
+!write (0,*) __FILE__, __LINE__,'; cudaDeviceSynchronize returns ',cudaDeviceSynchronize(); call flush(0)
 
 #ifdef gnarls
 !$acc data present(zgtf)
@@ -192,7 +192,7 @@ enddo
 !$acc end data
 #endif
 
-write (0,*) __FILE__, __LINE__,'; cudaDeviceSynchronize returns ',cudaDeviceSynchronize(); call flush(0)
+!write (0,*) __FILE__, __LINE__,'; cudaDeviceSynchronize returns ',cudaDeviceSynchronize(); call flush(0)
 
 CALL TRGTOL_CUDAAWARE(ZGTF,KF_FS,KF_GP,KF_SCALARS_G,IVSET,KPTRGP,&
  &PGP,PGPUV,PGP3A,PGP3B,PGP2,LDGW=.TRUE.)
