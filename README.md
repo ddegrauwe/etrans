@@ -100,12 +100,26 @@ Note: a sample toolchain file is provided under etrans/cmake/toolchain/sample_to
     rm -rf ${BUILDDIR}/etrans
     mkdir -p ${BUILDDIR}/etrans
     cd ${BUILDDIR}/etrans
-    ecbuild --toolchain=${TOOLCHAIN_FILE} --prefix=${INSTALLDIR}/etrans  -Dectrans_ROOT=${INSTALLDIR}/ectrans -Dfiat_ROOT=${INSTALLDIR}/fiat ${SOURCEDIR}/etrans
+    ecbuild --toolchain=${TOOLCHAIN_FILE} --prefix=${INSTALLDIR}/etrans  -Dectrans_ROOT=${INSTALLDIR}/ectrans -Dfiat_ROOT=${INSTALLDIR}/fiat -DNVTX_ROOT=${INSTALLDIR}/nvtx ${SOURCEDIR}/etrans
     make -j12
     rm -rf ${INSTALLDIR}/etrans
     make install
 
-### Test program
+### Running test driver
 
-(to be integrated with etrans ...)
+    # path to shared libraries
+    export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${INSTALLDIR}/fiat/lib64/:${INSTALLDIR}/ectrans/lib64/:${INSTALLDIR}/etrans/lib64/
+    # create namelist file
+    echo -e "&NAMTRANS\nNITERS=1\n/\n&NAMBIFFT\nNLON=6,NLAT=4,NFLD=1,NPROMA=24\n/\n&NAMCT0\n/\n" > fort.4
+    # some environment settings
+    export DR_HOOK=1
+    export DR_HOOK_OPT=prof
+    export OMP_NUM_THREADS=1
+    export PGI_ACC_CUDA_HEAPSIZE=$((1024*1024*1024*8))
+    export NPROC_PERNODE='1'
+    # run with profiling
+    precision=dp
+    mpirun -np 1 nsys profile -t openacc,cuda -f true -o report_nsys ./dwarf_bifft_${precision} > log.out 2>log.err
+    
+    
 
