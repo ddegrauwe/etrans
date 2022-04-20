@@ -23,55 +23,55 @@ LAM spectral transforms, related to ecmwf-ifs/ectrans
 
 * ecbuild, installed with
 
-    cd ${SOURCEDIR}
-    git clone git@github.com:ecmwf/ecbuild.git
-    cd ecbuild
-    git checkout master   # at time of writing, commit c39e3b0aaa1b9da7b5d6d9d419e8e25f37d70794
-    rm -rf ${BUILDDIR}/ecbuild ${INSTALLDIR}/ecbuild
-    mkdir -p ${BUILDDIR}/ecbuild
-    cd ${BUILDDIR}/ecbuild
-    ${SOURCEDIR}/ecbuild/bin/ecbuild --prefix=${INSTALLDIR}/ecbuild -DENABLE_INSTALL=ON ${SOURCEDIR}/ecbuild 
-    make
-    make install
+        cd ${SOURCEDIR}
+        git clone git@github.com:ecmwf/ecbuild.git
+        cd ecbuild
+        git checkout master   # at time of writing, commit c39e3b0aaa1b9da7b5d6d9d419e8e25f37d70794
+        rm -rf ${BUILDDIR}/ecbuild ${INSTALLDIR}/ecbuild
+        mkdir -p ${BUILDDIR}/ecbuild
+        cd ${BUILDDIR}/ecbuild
+        ${SOURCEDIR}/ecbuild/bin/ecbuild --prefix=${INSTALLDIR}/ecbuild -DENABLE_INSTALL=ON ${SOURCEDIR}/ecbuild 
+        make
+        make install
     
 * eccodes, installed with
 
-    cd ${SOURCEDIR}
-    git clone git@github.com:ecmwf/eccodes.git
-    cd eccodes
-    git checkout master    # at time of writing, commit 6efa9fc52899863d32311e5498f79abde8f303f3
-    rm -rf ${BUILDDIR}/eccodes
-    mkdir -p ${BUILDDIR}/eccodes
-    cd ${BUILDDIR}/eccodes
-    ecbuild --toolchain=${SOURCEDIR}/accelgor_gpu.cmake --prefix=${INSTALLDIR}/eccodes -DENABLE_MEMFS=ON -DENABLE_AEC=OFF ${SOURCEDIR}/eccodes
-    make -j24
-    rm -rf ${INSTALLDIR}/eccodes
-    make install
+        cd ${SOURCEDIR}
+        git clone git@github.com:ecmwf/eccodes.git
+        cd eccodes
+        git checkout master    # at time of writing, commit 6efa9fc52899863d32311e5498f79abde8f303f3
+        rm -rf ${BUILDDIR}/eccodes
+        mkdir -p ${BUILDDIR}/eccodes
+        cd ${BUILDDIR}/eccodes
+        ecbuild --toolchain=${SOURCEDIR}/accelgor_gpu.cmake --prefix=${INSTALLDIR}/eccodes -DENABLE_MEMFS=ON -DENABLE_AEC=OFF ${SOURCEDIR}/eccodes
+        make -j24
+        rm -rf ${INSTALLDIR}/eccodes
+        make install
 
 
 * fiat, installed with
 
-    cd ${SOURCEDIR}
-    git clone git@github.com:ecmwf-ifs/fiat.git
-    cd fiat
-    git checkout main    # at time of writing, commit e214bef6aa3a67ebc89b675afc82ceb97e93c329
-    rm -rf ${BUILDDIR}/fiat
-    mkdir -p ${BUILDDIR}/fiat
-    cd ${BUILDDIR}/fiat
-    ecbuild --toolchain=${INSTALLDIR}/ecbuild/share/ecbuild/toolchains/accelgor_gpu.cmake --prefix=${INSTALLDIR}/fiat ${SOURCEDIR}/fiat
-    make -j8
-    rm -rf ${INSTALLDIR}/fiat
-    make install
+        cd ${SOURCEDIR}
+        git clone git@github.com:ecmwf-ifs/fiat.git
+        cd fiat
+        git checkout main    # at time of writing, commit e214bef6aa3a67ebc89b675afc82ceb97e93c329
+        rm -rf ${BUILDDIR}/fiat
+        mkdir -p ${BUILDDIR}/fiat
+        cd ${BUILDDIR}/fiat
+        ecbuild --toolchain=${INSTALLDIR}/ecbuild/share/ecbuild/toolchains/accelgor_gpu.cmake --prefix=${INSTALLDIR}/fiat ${SOURCEDIR}/fiat
+        make -j8
+        rm -rf ${INSTALLDIR}/fiat
+        make install
 
 
 * nvtx.mod; may be included in some NVHPC installations; otherwise compile it yourself from https://gist.github.com/jefflarkin/b64f63d79bdc978a2503 with
 
-	nvfortran -c -fPIC nvtx.F90
-	ar rcs libnvtx.a nvtx.o
-	mkdir -p ${INSTALLDIR}/nvtx/include
-	mv nvtx.mod ${INSTALLDIR}/nvtx/include
-	mkdir -p ${INSTALLDIR}/nvtx/lib
-	mv libnvtx.a ${INSTALLDIR}/nvtx/lib
+        nvfortran -c -fPIC nvtx.F90
+        ar rcs libnvtx.a nvtx.o
+        mkdir -p ${INSTALLDIR}/nvtx/include
+        mv nvtx.mod ${INSTALLDIR}/nvtx/include
+        mkdir -p ${INSTALLDIR}/nvtx/lib
+        mv libnvtx.a ${INSTALLDIR}/nvtx/lib
 
 
 ### Compilation of ectrans
