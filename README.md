@@ -43,7 +43,7 @@ LAM spectral transforms, related to ecmwf-ifs/ectrans
         rm -rf ${BUILDDIR}/eccodes
         mkdir -p ${BUILDDIR}/eccodes
         cd ${BUILDDIR}/eccodes
-        ecbuild --toolchain=${SOURCEDIR}/accelgor_gpu.cmake --prefix=${INSTALLDIR}/eccodes -DENABLE_MEMFS=ON -DENABLE_AEC=OFF ${SOURCEDIR}/eccodes
+        ecbuild --toolchain=${TOOLCHAIN_FILE} --prefix=${INSTALLDIR}/eccodes -DENABLE_MEMFS=ON -DENABLE_AEC=OFF ${SOURCEDIR}/eccodes
         make -j24
         rm -rf ${INSTALLDIR}/eccodes
         make install
@@ -58,7 +58,7 @@ LAM spectral transforms, related to ecmwf-ifs/ectrans
         rm -rf ${BUILDDIR}/fiat
         mkdir -p ${BUILDDIR}/fiat
         cd ${BUILDDIR}/fiat
-        ecbuild --toolchain=${INSTALLDIR}/ecbuild/share/ecbuild/toolchains/accelgor_gpu.cmake --prefix=${INSTALLDIR}/fiat ${SOURCEDIR}/fiat
+        ecbuild --toolchain=${TOOLCHAIN_FILE} --prefix=${INSTALLDIR}/fiat ${SOURCEDIR}/fiat
         make -j8
         rm -rf ${INSTALLDIR}/fiat
         make install
