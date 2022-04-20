@@ -27,6 +27,15 @@ set( OpenACC_Fortran_FLAGS "${OpenACC_Fortran_FLAGS} -Mcuda" )
 
 add_subdirectory( src )
 
+ecbuild_add_option( FEATURE DRIVER
+                    DEFAULT ON
+                    DESCRIPTION "Compile driver program for LAM transforms"
+				)
+
+if( HAVE_DRIVER )
+  add_subdirectory( driver )
+endif()
+
 ecbuild_install_project( NAME etrans )
 
 ecbuild_print_summary()
