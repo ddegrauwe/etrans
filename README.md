@@ -15,8 +15,8 @@ LAM spectral transforms, related to ecmwf-ifs/ectrans
     export CXX=mpicxx
     export FC=mpif90
     export PATH=${PATH}:${INSTALLDIR}/ecbuild/bin/
-
-    export INSTALLDIR
+    TOOLCHAIN_FILE=${SOURCEDIR}/my_toolchain.cmake    # Note: a sample toolchain file is provided under etrans/cmake/toolchain/sample_toolchain.cmake
+    
     cd ${BASEDIR}
 
 ### Prerequisites
@@ -75,8 +75,6 @@ LAM spectral transforms, related to ecmwf-ifs/ectrans
 
 
 ### Compilation of ectrans
-
-Note: a sample toolchain file is provided under etrans/cmake/toolchain/sample_toolchain.cmake
 
     cd ${SOURCEDIR}
     git clone git@github.com:ddegrauwe/ectrans.git
