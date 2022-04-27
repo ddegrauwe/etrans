@@ -63,6 +63,7 @@ INTEGER(KIND=JPIM) :: JM, JF, JJ
 REAL (KIND=JPRB)   :: ZSCAL
 
 integer :: istat
+character(len=1024) :: frmt
 
 !     ------------------------------------------------------------------
 
@@ -75,11 +76,27 @@ ICLEN=RALD%NDGLSUR+R%NNOEXTZG
 CALL CREATE_PLAN_FFTR (PLAN_R2C_PTR, -1, KN=IRLEN, KLOT=UBOUND (PFFT,2)*UBOUND (PFFT, 3), &
                     & KISTRIDE=1, KIDIST=ICLEN, KOSTRIDE=1, KODIST=ICLEN/2, LDINPLACE=.TRUE.)
 
-!**$acc host_data use_device (PFFT) 
-CALL EXECUTE_PLAN_FFTR_INPLACE(PLAN_R2C_PTR, PFFT (1, 1, 1))
-!**$acc end host_data
+! !$acc update host (PFFT)
+! write (0,*) ''
+! write (0,*) '=== before transform ==='
+! write (0,*) '  shape(PFFT) = ',shape(PFFT)
+! write (0,*) '  PFFT = '
+! write (frmt,*) '(2X,',ICLEN,'F8.2)'
+! write (0,frmt) PFFT
+! write (0,*) ''
+! call flush(0)
 
-!istat = cuda_Synchronize()
+CALL EXECUTE_PLAN_FFTR_INPLACE(PLAN_R2C_PTR, PFFT (1, 1, 1))
+
+! !$acc update host (PFFT)
+! write (0,*) ''
+! write (0,*) '=== after transform ==='
+! write (0,*) '  shape(PFFT) = ',shape(PFFT)
+! write (0,*) '  PFFT = '
+! write (frmt,*) '(2X,',ICLEN,'F8.2)'
+! write (0,frmt) PFFT
+! write (0,*) ''
+! call flush(0)
 
 ZSCAL = 1._JPRB / REAL (IRLEN, JPRB)
 
@@ -92,6 +109,7 @@ DO JF = 1, KFC
   ENDDO
 ENDDO
 !$acc end parallel loop
+
 
 !     ------------------------------------------------------------------
 

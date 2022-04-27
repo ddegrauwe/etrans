@@ -72,9 +72,8 @@ REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
 IF (LHOOK) CALL DR_HOOK('EASRE1B_MOD:EASRE1B',0,ZHOOK_HANDLE)
 
 
-!$acc parallel loop private (JM, JGL, JFLD, IPROC, IISTAN) &
-!$acc& present (FOUBUF_IN, PFFT, D_NSTAGT0B, D_NPNTGTB1, D_NPROCL, D_NUMP, R_NDGL) &
-!$acc& tile(1,16,32)
+!$acc parallel loop collapse(3) private (JM, JGL, JFLD, IPROC, IISTAN) &
+!$acc& present (FOUBUF_IN, PFFT, D_NSTAGT0B, D_NPNTGTB1, D_NPROCL, D_NUMP, R_NDGL)
 DO JM = 1, D_NUMP  !100
   DO JFLD  =1,2*KFIELD !500
     DO JGL=1,R_NDGL  !400

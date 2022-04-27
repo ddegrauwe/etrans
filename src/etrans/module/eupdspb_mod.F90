@@ -59,7 +59,7 @@ REAL(KIND=JPRB)   ,INTENT(IN)  :: POA(:,:,:)
 REAL(KIND=JPRB)   ,INTENT(OUT) :: PSPEC(:,:)
 INTEGER(KIND=JPIM),INTENT(IN),OPTIONAL :: KFLDPTR(:)
 
-INTEGER(KIND=JPIM) :: II, INM, IR, JFLD, JN,IFLD, JM, IM
+INTEGER(KIND=JPIM) :: II, INM, IR, JFLD, JN,IFLD, JM, IM, JNMAX
 REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
 
 
@@ -94,24 +94,45 @@ IF(PRESENT(KFLDPTR)) THEN
   ENDDO
 
 ELSE
-  !$ACC parallel loop
-  DO JM = 1, D%NUMP
-    IM = D_MYMS(JM)
+  ! !$ACC parallel loop
+  ! DO JM = 1, D%NUMP
+    ! IM = D_MYMS(JM)
   
-    !$ACC loop
+    ! !$ACC loop
+    ! DO JN=1,DALD_NCPL2M(IM),2
+      ! INM=DALD_NESM0(IM)+(JN-1)*2
+      ! !$ACC loop
+      ! DO JFLD=1,KFIELD
+        ! IR= 2*JFLD-1
+        ! II=IR+1
+        ! PSPEC(JFLD,INM)    =POA(JN  ,JM,IR)
+        ! PSPEC(JFLD,INM+1)  =POA(JN+1,JM,IR)
+        ! PSPEC(JFLD,INM+2)  =POA(JN  ,JM,II)
+        ! PSPEC(JFLD,INM+3)  =POA(JN+1,JM,II)
+      ! ENDDO
+    ! ENDDO
+  
+  ! ENDDO
+
+! daand: naive trial to speed this up
+  JNMAX=MAXVAL(DALD_NCPL2M)
+
+  !$ACC parallel loop collapse(3) private(jm,jn,jfld,im, inm, ir, ii)
+  DO JM = 1, D%NUMP
     DO JN=1,DALD_NCPL2M(IM),2
-      INM=DALD_NESM0(IM)+(JN-1)*2
-      !$ACC loop
       DO JFLD=1,KFIELD
-        IR= 2*JFLD-1
-        II=IR+1
-        PSPEC(JFLD,INM)    =POA(JN  ,JM,IR)
-        PSPEC(JFLD,INM+1)  =POA(JN+1,JM,IR)
-        PSPEC(JFLD,INM+2)  =POA(JN  ,JM,II)
-        PSPEC(JFLD,INM+3)  =POA(JN+1,JM,II)
+        IM = D_MYMS(JM)
+	    IF ( JN <= DALD_NCPL2M(IM) ) THEN
+			INM=DALD_NESM0(IM)+(JN-1)*2
+			IR= 2*JFLD-1
+			II=IR+1
+			PSPEC(JFLD,INM)    =POA(JN  ,JM,IR)
+			PSPEC(JFLD,INM+1)  =POA(JN+1,JM,IR)
+			PSPEC(JFLD,INM+2)  =POA(JN  ,JM,II)
+			PSPEC(JFLD,INM+3)  =POA(JN+1,JM,II)
+		ENDIF
       ENDDO
     ENDDO
-  
   ENDDO
 
 ENDIF

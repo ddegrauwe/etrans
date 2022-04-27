@@ -56,7 +56,7 @@ INTEGER(KIND=JPIM) :: IRLEN,ICLEN
 INTEGER(KIND=JPIM) :: IPLAN_R2C
 TYPE(C_PTR) :: PLAN_R2C_PTR
 REAL(KIND=JPRBT)   :: ZSCAL
-
+character(len=1024) :: frmt
 integer :: istat
 
 !     ------------------------------------------------------------------
@@ -66,31 +66,31 @@ write (0,*) __FILE__, __LINE__; call flush(0)
 IRLEN=R%NDLON+R%NNOEXTZG
 ICLEN=D%NLENGTF/D%NDGL_FS
 
-!write (0,*) __FILE__, __LINE__,'; cudaDeviceSynchronize returns ',cudaDeviceSynchronize(); call flush(0)
-
 CALL CREATE_PLAN_FFTR (PLAN_R2C_PTR, -1, KN=IRLEN, KLOT=KFIELDS*D%NDGL_FS, &
                     & KISTRIDE=1, KIDIST=ICLEN, KOSTRIDE=1, KODIST=ICLEN/2, LDINPLACE=.TRUE.)
 
-!write (0,*) __FILE__, __LINE__,'; cudaDeviceSynchronize returns ',cudaDeviceSynchronize(); call flush(0)
+! !$acc update host (PREEL)
+! write (0,*) ''
+! write (0,*) '=== before transform ==='
+! write (0,*) '  shape(PREEL) = ',shape(PREEL)
+! write (0,*) '  PREEL = '
+! write (frmt,*) '(2X,',ICLEN,'F8.2)'
+! write (0,frmt) PREEL
+! write (0,*) ''
+! call flush(0)
 
-!$acc data present(PREEL)
-!$acc update host (PREEL)
-write (0,*) '(before transform) PREEL = ',PREEL; call flush(0)
-!$acc end data
-
-
-!**$acc host_data use_device(PREEL)
-!write (0,*) __FILE__, __LINE__,'; cudaDeviceSynchronize returns ',cudaDeviceSynchronize(); call flush(0)
 CALL EXECUTE_PLAN_FFTR_INPLACE (PLAN_R2C_PTR, PREEL (1, 1))
-!write (0,*) __FILE__, __LINE__,'; cudaDeviceSynchronize returns ',cudaDeviceSynchronize(); call flush(0)
-!**$acc end host_data
 
-!$acc data present(PREEL)
-!$acc update host (PREEL)
-write (0,*) '(after transform) PREEL = ',PREEL; call flush(0)
-!$acc end data
+! !$acc update host (PREEL)
+! write (0,*) ''
+! write (0,*) '=== after transform ==='
+! write (0,*) '  shape(PREEL) = ',shape(PREEL)
+! write (0,*) '  PREEL = '
+! write (frmt,*) '(2X,',ICLEN,'F8.2)'
+! write (0,frmt) PREEL
+! write (0,*) ''
+! call flush(0)
 
-!write (0,*) __FILE__, __LINE__,'; cudaDeviceSynchronize returns ',cudaDeviceSynchronize(); call flush(0)
 
 ZSCAL = 1._JPRB / REAL (R%NDLON, JPRB)
 
@@ -98,7 +98,7 @@ ZSCAL = 1._JPRB / REAL (R%NDLON, JPRB)
 PREEL = ZSCAL * PREEL
 !$acc end kernels
 
-!write (0,*) __FILE__, __LINE__,'; cudaDeviceSynchronize returns ',cudaDeviceSynchronize(); call flush(0)
+
 
 !     ------------------------------------------------------------------
 

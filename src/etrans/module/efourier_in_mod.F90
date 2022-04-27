@@ -51,6 +51,18 @@ INTEGER(KIND=JPIM) :: IOFF, JGL
 !$acc& copyin(D_NPTRLS,D_NSTAGTF,D_MSTABF,D_NSTAGT0B,D_NPNTGTB0,G_NMEN,G_NMEN_MAX,D_NPROCM) &
 !$acc& present(PREEL,FOUBUF)
 
+!!$acc update host(FOUBUF)
+!write (77,*) __FILE__, __LINE__
+!write (77,*) 'foubuf = '; write(77,'(999F8.2)') foubuf
+
+!$acc parallel loop collapse(2)
+do jf=1,KFIELDS
+  do jgl=1,size(preel,1)
+    PREEL(jgl,jf)=0._JPRBT
+  enddo
+enddo
+
+
 !$acc parallel loop collapse(3) private(IGLG,IPROC,ISTA,IOFF)
 DO JGL = 1, D%NDGL_FS
    DO JM=0,G_NMEN_MAX      
@@ -66,6 +78,11 @@ DO JGL = 1, D%NDGL_FS
       ENDDO
    ENDDO
 END DO
+
+!!$acc update host(PREEL)
+!write (77,*) __FILE__, __LINE__
+!write (77,*) 'preel = '; write(77,'(999F8.2)') preel
+
 
 !$acc end data
 

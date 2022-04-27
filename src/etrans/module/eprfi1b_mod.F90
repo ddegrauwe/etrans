@@ -72,9 +72,14 @@ IF (LHOOK) CALL DR_HOOK('EPRFI1B_MOD:EPRFI1B',0,ZHOOK_HANDLE)
 
 !$acc data present (PFFT, PSPEC)
 
-!$acc kernels
-PFFT = 0._JPRB
-!$acc end kernels
+!$acc parallel loop collapse(3)
+do jfld=1,size(pfft,3)
+  do jm=1,size(pfft,2)
+    do j=1,size(pfft,1)
+	  PFFT(j,jm,jfld) = 0._JPRB
+	enddo
+  enddo
+enddo
 
 IF(PRESENT(KFLDPTR)) THEN
   ! TODO 

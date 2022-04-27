@@ -123,7 +123,13 @@ CALL TRMTOL(FOUBUF_IN,FOUBUF,2*KF_OUT_LT)
 #endif
 CALL GSTATS(152,1)
 
+!!$acc data present(FOUBUF, FOUBUF_IN)
+!!$acc update host(FOUBUF, FOUBUF_IN)
+!!$acc end data
 
+!write (77,*) __FILE__, __LINE__
+!write (77,*) 'foubuf = '; write(77,'(999F8.2)') foubuf
+!write (77,*) 'foubuf_in = '; write(77,'(999F8.2)') foubuf_in
 
 IF (.NOT.LALLOPERM) THEN
 !$acc exit data delete (FOUBUF_IN)

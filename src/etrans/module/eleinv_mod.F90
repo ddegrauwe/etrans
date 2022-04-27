@@ -74,6 +74,7 @@ TYPE(C_PTR) :: PLAN_C2R_PTR
 REAL (KIND=JPRB)   :: ZSCAL
 
 integer :: istat
+character(len=1024) :: frmt
 
 REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
 
@@ -91,12 +92,27 @@ ICLEN=RALD%NDGLSUR+R%NNOEXTZG
 CALL CREATE_PLAN_FFTR (PLAN_C2R_PTR, +1, KN=IRLEN, KLOT=UBOUND (PFFT,2)*UBOUND (PFFT, 3), &
                     & KISTRIDE=1, KIDIST=ICLEN/2, KOSTRIDE=1, KODIST=ICLEN, LDINPLACE=.TRUE.)
 
+! !$acc update host (PFFT)
+! write (0,*) ''
+! write (0,*) '=== before transform ==='
+! write (0,*) '  shape(PFFT) = ',shape(PFFT)
+! write (0,*) '  PFFT = '
+! write (frmt,*) '(2X,',ICLEN,'F8.2)'
+! write (0,frmt) PFFT
+! write (0,*) ''
+! call flush(0)
 
-!**$acc host_data use_device (PFFT) 
 CALL EXECUTE_PLAN_FFTR_INPLACE(PLAN_C2R_PTR, PFFT (1, 1, 1))
-!**$acc end host_data
 
-!istat = cuda_Synchronize()
+! !$acc update host (PFFT)
+! write (0,*) ''
+! write (0,*) '=== after transform ==='
+! write (0,*) '  shape(PFFT) = ',shape(PFFT)
+! write (0,*) '  PFFT = '
+! write (frmt,*) '(2X,',ICLEN,'F8.2)'
+! write (0,frmt) PFFT
+! write (0,*) ''
+! call flush(0)
 
 IF (LHOOK) CALL DR_HOOK('ELEINV_MOD:ELEINV',1,ZHOOK_HANDLE)
 

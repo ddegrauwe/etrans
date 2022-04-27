@@ -60,6 +60,7 @@ INTEGER(KIND=JPIM) :: IRLEN, ICLEN
 INTEGER(KIND=JPIM) :: IPLAN_C2R
 TYPE(C_PTR) :: PLAN_C2R_PTR
 integer :: istat
+character(len=1024) :: frmt
 REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
 
 !     ------------------------------------------------------------------
@@ -70,12 +71,29 @@ IRLEN=R%NDLON+R%NNOEXTZG
 ICLEN=D%NLENGTF/D%NDGL_FS
 
 CALL CREATE_PLAN_FFTR (PLAN_C2R_PTR, +1, KN=IRLEN, KLOT=KFIELDS*D%NDGL_FS, &
-                    & KISTRIDE=1, KIDIST=ICLEN/2, KOSTRIDE=1, KODIST=ICLEN, LDINPLACE=.TRUE.)
-!**$acc host_data use_device(PREEL)
-CALL EXECUTE_PLAN_FFTR_INPLACE (PLAN_C2R_PTR, PREEL (1, 1))
-!**$acc end host_data
+                    & KISTRIDE=1, KIDIST=ICLEN/2, KOSTRIDE=1, KODIST=ICLEN, LDINPLACE=.TRUE.)					
+					
+! !$acc update host (PREEL)
+! write (0,*) ''
+! write (0,*) '=== before transform ==='
+! write (0,*) '  shape(PREEL) = ',shape(PREEL)
+! write (0,*) '  PREEL = '
+! write (frmt,*) '(2X,',ICLEN,'F8.2)'
+! write (0,frmt) PREEL
+! write (0,*) ''
+! call flush(0)
 
-!istat = cuda_Synchronize()
+CALL EXECUTE_PLAN_FFTR_INPLACE (PLAN_C2R_PTR, PREEL (1, 1))
+
+! !$acc update host (PREEL)
+! write (0,*) ''
+! write (0,*) '=== after transform ==='
+! write (0,*) '  shape(PREEL) = ',shape(PREEL)
+! write (0,*) '  PREEL = '
+! write (frmt,*) '(2X,',ICLEN,'F8.2)'
+! write (0,frmt) PREEL
+! write (0,*) ''
+! call flush(0)
 
 IF (LHOOK) CALL DR_HOOK('EFTINV_MOD:EFTINV',1,ZHOOK_HANDLE)
 !     ------------------------------------------------------------------
