@@ -18,7 +18,7 @@ USE YOMGSTATS
 
 USE PARKIND_ECTRANS, ONLY : JPRBT
 
-use cudafor
+!use cudafor
 
 IMPLICIT NONE
 

@@ -34,24 +34,24 @@ foreach ( prec IN LISTS precs )
 
 	ecbuild_add_library( TARGET etrans_${prec}
 
-	  PUBLIC_INCLUDES
+	    PUBLIC_INCLUDES
 				$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/etrans/interface>
 				$<BUILD_INTERFACE:${CMAKE_Fortran_MODULE_DIRECTORY}>
 				$<INSTALL_INTERFACE:include>
 				$<INSTALL_INTERFACE:include/etrans>
 
-	  PUBLIC_LIBS  
-				trans_gpu_static_CA_${prec}
+	    PUBLIC_LIBS  
+				trans_gpu_${prec}
 				fiat
 				parkind_${prec}
 
-	  SOURCES
+	    SOURCES
 				${etrans_src}
 
-      INSTALL_HEADERS_LIST
+        INSTALL_HEADERS_LIST
 				${etrans_hdr}
 				
-      HEADER_DESTINATION include/etrans
+        HEADER_DESTINATION include/etrans
 		TYPE             STATIC
     )
 
@@ -62,10 +62,11 @@ foreach ( prec IN LISTS precs )
 	  target_compile_definitions( etrans_${prec} PRIVATE WITH_FFTW )
 	endif()
 	
-    target_compile_options( etrans_${prec} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:-g -acc -Minfo=acc -gpu=cc70,lineinfo,deepcopy,fastmath,nordc> )
-
-    target_link_libraries( etrans_${prec} PRIVATE OpenACC::OpenACC_Fortran )
-    set_property( TARGET etrans_${prec} PROPERTY CUDA_ARCHITECTURES 70 )
+    #target_compile_options( etrans_${prec} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:-g -acc -Minfo=acc -gpu=cc70,lineinfo,deepcopy,fastmath,nordc> )
+	target_compile_options( etrans_${prec} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:-fopenmp > )    # add specific compile options here !!!
+	
+    #target_link_libraries( etrans_${prec} PRIVATE OpenACC::OpenACC_Fortran )
+    #set_property( TARGET etrans_${prec} PROPERTY CUDA_ARCHITECTURES 70 )
 
     if( prec STREQUAL sp )
         target_compile_definitions( etrans_${prec} PUBLIC TRANS_SINGLE PARKINDTRANS_SINGLE )

@@ -40,11 +40,11 @@ USE PARKIND1  ,ONLY : JPIM, JPIB, JPRB
 USE PARKIND_ECTRANS, ONLY : JPRBT
 
 USE TPM_DISTR       ,ONLY : D
-USE TPM_FFTC        ,ONLY : CREATE_PLAN_FFT
+USE TPM_FFTR        ,ONLY : CREATE_PLAN_FFTR, EXECUTE_PLAN_FFTR_INPLACE
 USE TPM_DIM         ,ONLY : R
-USE CUDA_DEVICE_MOD
-use cudafor
-
+!USE CUDA_DEVICE_MOD
+!use cudafor
+USE, INTRINSIC :: ISO_C_BINDING
 !
 
 IMPLICIT NONE
@@ -54,27 +54,41 @@ REAL(KIND=JPRB), INTENT(INOUT) :: PREEL(:,:)
 
 INTEGER(KIND=JPIM) :: IRLEN,ICLEN
 INTEGER(KIND=JPIM) :: IPLAN_R2C
+TYPE(C_PTR) :: PLAN_R2C_PTR
 REAL(KIND=JPRBT)   :: ZSCAL
 
 integer :: istat
 
 !     ------------------------------------------------------------------
 
+write (0,*) __FILE__, __LINE__; call flush(0)
+
 IRLEN=R%NDLON+R%NNOEXTZG
 ICLEN=D%NLENGTF/D%NDGL_FS
 
 !write (0,*) __FILE__, __LINE__,'; cudaDeviceSynchronize returns ',cudaDeviceSynchronize(); call flush(0)
 
-CALL CREATE_PLAN_FFT (IPLAN_R2C, -1, KN=IRLEN, KLOT=KFIELDS*D%NDGL_FS, &
-                    & KISTRIDE=1, KIDIST=ICLEN, KOSTRIDE=1, KODIST=ICLEN/2)
+CALL CREATE_PLAN_FFTR (PLAN_R2C_PTR, -1, KN=IRLEN, KLOT=KFIELDS*D%NDGL_FS, &
+                    & KISTRIDE=1, KIDIST=ICLEN, KOSTRIDE=1, KODIST=ICLEN/2, LDINPLACE=.TRUE.)
 
 !write (0,*) __FILE__, __LINE__,'; cudaDeviceSynchronize returns ',cudaDeviceSynchronize(); call flush(0)
 
-!$acc host_data use_device(PREEL)
+!$acc data present(PREEL)
+!$acc update host (PREEL)
+write (0,*) '(before transform) PREEL = ',PREEL; call flush(0)
+!$acc end data
+
+
+!**$acc host_data use_device(PREEL)
 !write (0,*) __FILE__, __LINE__,'; cudaDeviceSynchronize returns ',cudaDeviceSynchronize(); call flush(0)
-CALL EXECUTE_PLAN_FFTC_INPLACE (IPLAN_R2C, -1, PREEL (1, 1))
+CALL EXECUTE_PLAN_FFTR_INPLACE (PLAN_R2C_PTR, PREEL (1, 1))
 !write (0,*) __FILE__, __LINE__,'; cudaDeviceSynchronize returns ',cudaDeviceSynchronize(); call flush(0)
-!$acc end host_data
+!**$acc end host_data
+
+!$acc data present(PREEL)
+!$acc update host (PREEL)
+write (0,*) '(after transform) PREEL = ',PREEL; call flush(0)
+!$acc end data
 
 !write (0,*) __FILE__, __LINE__,'; cudaDeviceSynchronize returns ',cudaDeviceSynchronize(); call flush(0)
 
@@ -87,6 +101,8 @@ PREEL = ZSCAL * PREEL
 !write (0,*) __FILE__, __LINE__,'; cudaDeviceSynchronize returns ',cudaDeviceSynchronize(); call flush(0)
 
 !     ------------------------------------------------------------------
+
+write (0,*) __FILE__, __LINE__; call flush(0)
 
 END SUBROUTINE EFTDIR
 END MODULE EFTDIR_MOD

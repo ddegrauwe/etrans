@@ -72,7 +72,7 @@ IF (LHOOK) CALL DR_HOOK('EPRFI1B_MOD:EPRFI1B',0,ZHOOK_HANDLE)
 
 !$acc data present (PFFT, PSPEC)
 
-!$acc kernels default(none)
+!$acc kernels
 PFFT = 0._JPRB
 !$acc end kernels
 
@@ -100,7 +100,7 @@ ELSE
   !$ACC parallel loop collapse(3) &
   !$ACC& present(D_MYMS,DALD_NCPL2M,DALD_NESM0) &
   !$ACC& present(PFFT,PSPEC) &
-  !$ACC& private(IR,II,IM,ILCM,IOFF,INM) default(none)
+  !$ACC& private(IR,II,IM,ILCM,IOFF,INM)
   DO JFLD=1,KFIELDS
     DO JM = 1, D_NUMP
       DO J=1,MAX_NCPL2M,2

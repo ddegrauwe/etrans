@@ -64,7 +64,7 @@ USE TRGTOL_MOD       ,ONLY : TRGTOL, TRGTOL_CUDAAWARE
 USE EFOURIER_OUT_MOD ,ONLY : EFOURIER_OUT
 USE EFTDIR_MOD       ,ONLY : EFTDIR
 USE EXTPER_MOD       ,ONLY : EXTPER
-use cudafor
+!use cudafor
 
 !
 
@@ -120,7 +120,7 @@ ZGTF => ZGTF_PERM (:, 1:KF_FS)
 #ifdef gnarls
 write (0,*) __FILE__, __LINE__; call flush(0)
 !$acc data present(zgtf)
-!$acc parallel loop collapse(2) default(none)
+!$acc parallel loop collapse(2) 
 do j3=lbound(zgtf,2),ubound(zgtf,2)
   do ioff=lbound(zgtf,1),ubound(zgtf,1)
     zgtf(ioff,j3)=0._jprbt
@@ -183,7 +183,7 @@ CALL GSTATS(158,0)
 
 #ifdef gnarls
 !$acc data present(zgtf)
-!$acc parallel loop collapse(2) default(none)
+!$acc parallel loop collapse(2) 
 do j3=lbound(zgtf,2),ubound(zgtf,2)
   do ioff=lbound(zgtf,1),ubound(zgtf,1)
     zgtf(ioff,j3)=0._jprbt

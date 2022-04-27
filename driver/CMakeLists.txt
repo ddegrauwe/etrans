@@ -13,21 +13,22 @@ foreach( prec sp dp )
 								  etrans_${prec}
 								  fiat parkind_${prec}
 								  ${MPI_Fortran_LIBRARIES}
-								  trans_gpu_static_${prec}
+								  trans_gpu_${prec}
 								  gpu
-								  OpenACC::OpenACC_Fortran 
 								  ${LAPACK_LIBRARIES}
-								  nvToolsExt
+								  rocfft
 								  
 						  )
 
 	  #target_link_libraries( driver-spectrans PRIVATE OpenACC::OpenACC_Fortran )
-	  set_property( TARGET driver_lam_${prec} PROPERTY CUDA_ARCHITECTURES 70 )
-	  target_compile_options( driver_lam_${prec} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:-g -acc -Minfo=acc -gpu=cc70,lineinfo,deepcopy,fastmath,nordc -cudalib=cufft,cublas -fpic>  )
-	  set_target_properties(driver_lam_${prec} PROPERTIES LINK_FLAGS "-acc -cudalib=cufft,cublas -fpic")
-	  if ( NVTX_ROOT )
-		target_link_libraries( driver_lam_${prec} "${NVTX_ROOT}/lib/libnvtx.a" )
-	  endif()
+	  #set_property( TARGET driver_lam_${prec} PROPERTY CUDA_ARCHITECTURES 70 )
+	  #target_compile_options( driver_lam_${prec} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:-g -acc -Minfo=acc -gpu=cc70,lineinfo,deepcopy,fastmath,nordc -cudalib=cufft,cublas -fpic>  )
+	  target_compile_options( driver_lam_${prec} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:-fopenmp>  )
+	  target_link_options( driver_lam_${prec} PRIVATE $<$<COMPILE_LANGUAGE:Fortran>:-fopenmp>  )
+	  #set_target_properties(driver_lam_${prec} PROPERTIES LINK_FLAGS "-acc -cudalib=cufft,cublas -fpic")
+	  #if ( NVTX_ROOT )
+	  # target_link_libraries( driver_lam_${prec} "${NVTX_ROOT}/lib/libnvtx.a" )
+	  #endif()
 	  message("Building ${prec} GPU driver")
 	endif()
 endforeach()
