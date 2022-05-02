@@ -51,6 +51,14 @@ INTEGER(KIND=JPIM) :: IOFF, JGL
 !$acc& copyin(D_NPTRLS,D_NSTAGTF,D_MSTABF,D_NSTAGT0B,D_NPNTGTB0,G_NMEN,G_NMEN_MAX,D_NPROCM) &
 !$acc& present(PREEL,FOUBUF)
 
+!$acc kernels
+DO JF=1,SIZE(PREEL,2)
+  DO JGL=1,SIZE(PREEL,1)
+    PREEL(JGL,JF)=0._JPRB
+  ENDDO
+ENDDO
+!$acc end kernels
+
 !$acc parallel loop collapse(3) private(IGLG,IPROC,ISTA,IOFF)
 DO JGL = 1, D%NDGL_FS
    DO JM=0,G_NMEN_MAX      
