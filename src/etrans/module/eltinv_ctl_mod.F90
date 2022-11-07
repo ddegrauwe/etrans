@@ -49,7 +49,7 @@ USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK, JPHOOK
 USE TPM_GEN         ,ONLY : LALLOPERM
 !USE TPM_DIM
 USE TPM_TRANS       ,ONLY : FOUBUF, FOUBUF_IN
-USE TPM_DISTR       ,ONLY : D
+USE TPM_DISTR       ,ONLY : D, MYPROC
 
 USE ELTINV_MOD      ,ONLY : ELTINV
 USE TRMTOL_MOD      ,ONLY : TRMTOL, TRMTOL_CUDAAWARE
@@ -117,7 +117,9 @@ ENDIF
 
 CALL GSTATS(152,0)
 #ifdef USE_CUDA_AWARE_MPI_ELTINV
+write (77+MYPROC,*)  __FILE__, __LINE__,': calling trmtol'; call flush(77+MYPROC)
 CALL TRMTOL_CUDAAWARE(FOUBUF_IN,FOUBUF,2*KF_OUT_LT)
+write (77+MYPROC,*)  __FILE__, __LINE__,': trmtol call complete'; call flush(77+MYPROC)
 #else
 CALL TRMTOL(FOUBUF_IN,FOUBUF,2*KF_OUT_LT)
 #endif
@@ -131,7 +133,8 @@ CALL GSTATS(152,1)
 !write (77,*) 'foubuf = '; write(77,'(999F8.2)') foubuf
 !write (77,*) 'foubuf_in = '; write(77,'(999F8.2)') foubuf_in
 
-IF (.NOT.LALLOPERM) THEN
+!IF (.NOT.LALLOPERM) THEN
+IF ( ALLOCATED(FOUBUF_IN) ) THEN
 !$acc exit data delete (FOUBUF_IN)
   DEALLOCATE (FOUBUF_IN)
 ENDIF

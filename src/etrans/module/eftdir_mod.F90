@@ -39,7 +39,7 @@ SUBROUTINE EFTDIR(PREEL, KFIELDS)
 USE PARKIND1  ,ONLY : JPIM, JPIB, JPRB
 USE PARKIND_ECTRANS, ONLY : JPRBT
 
-USE TPM_DISTR       ,ONLY : D
+USE TPM_DISTR       ,ONLY : D, MYPROC
 USE TPM_FFTR        ,ONLY : CREATE_PLAN_FFTR, EXECUTE_PLAN_FFTR_INPLACE
 USE TPM_DIM         ,ONLY : R
 !USE CUDA_DEVICE_MOD
@@ -61,7 +61,7 @@ integer :: istat
 
 !     ------------------------------------------------------------------
 
-write (0,*) __FILE__, __LINE__; call flush(0)
+!write (0,*) __FILE__, __LINE__; call flush(0)
 
 IRLEN=R%NDLON+R%NNOEXTZG
 ICLEN=D%NLENGTF/D%NDGL_FS
@@ -70,26 +70,26 @@ CALL CREATE_PLAN_FFTR (PLAN_R2C_PTR, -1, KN=IRLEN, KLOT=KFIELDS*D%NDGL_FS, &
                     & KISTRIDE=1, KIDIST=ICLEN, KOSTRIDE=1, KODIST=ICLEN/2, LDINPLACE=.TRUE.)
 
 ! !$acc update host (PREEL)
-! write (0,*) ''
-! write (0,*) '=== before transform ==='
-! write (0,*) '  shape(PREEL) = ',shape(PREEL)
-! write (0,*) '  PREEL = '
+! write (77+MYPROC,*) ''
+! write (77+MYPROC,*) '=== before transform ==='
+! write (77+MYPROC,*) '  shape(PREEL) = ',shape(PREEL)
+! write (77+MYPROC,*) '  PREEL = '
 ! write (frmt,*) '(2X,',ICLEN,'F8.2)'
-! write (0,frmt) PREEL
-! write (0,*) ''
-! call flush(0)
+! write (77+MYPROC,frmt) PREEL
+! write (77+MYPROC,*) ''
+! call flush(77+MYPROC)
 
 CALL EXECUTE_PLAN_FFTR_INPLACE (PLAN_R2C_PTR, PREEL (1, 1))
 
 ! !$acc update host (PREEL)
-! write (0,*) ''
-! write (0,*) '=== after transform ==='
-! write (0,*) '  shape(PREEL) = ',shape(PREEL)
-! write (0,*) '  PREEL = '
+! write (77+MYPROC,*) ''
+! write (77+MYPROC,*) '=== after transform ==='
+! write (77+MYPROC,*) '  shape(PREEL) = ',shape(PREEL)
+! write (77+MYPROC,*) '  PREEL = '
 ! write (frmt,*) '(2X,',ICLEN,'F8.2)'
-! write (0,frmt) PREEL
-! write (0,*) ''
-! call flush(0)
+! write (77+MYPROC,frmt) PREEL
+! write (77+MYPROC,*) ''
+! call flush(77+MYPROC)
 
 
 ZSCAL = 1._JPRB / REAL (R%NDLON, JPRB)
@@ -102,7 +102,7 @@ PREEL = ZSCAL * PREEL
 
 !     ------------------------------------------------------------------
 
-write (0,*) __FILE__, __LINE__; call flush(0)
+!write (0,*) __FILE__, __LINE__; call flush(0)
 
 END SUBROUTINE EFTDIR
 END MODULE EFTDIR_MOD

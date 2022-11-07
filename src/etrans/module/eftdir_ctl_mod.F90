@@ -56,7 +56,7 @@ USE YOMHOOK   ,ONLY : LHOOK,   DR_HOOK, JPHOOK
 
 USE TPM_DIM          ,ONLY : R
 USE TPM_TRANS        ,ONLY : FOUBUF_IN
-USE TPM_DISTR        ,ONLY : D
+USE TPM_DISTR        ,ONLY : D, MYPROC
 USE TPM_GEN          ,ONLY : LALLOPERM2
 USE EFTDATA_MOD      ,ONLY : ZGTF_PERM
 
@@ -117,19 +117,6 @@ ENDIF
 
 ZGTF => ZGTF_PERM (:, 1:KF_FS)
 
-#ifdef gnarls
-write (0,*) __FILE__, __LINE__; call flush(0)
-!$acc data present(zgtf)
-!$acc parallel loop collapse(2) 
-do j3=lbound(zgtf,2),ubound(zgtf,2)
-  do ioff=lbound(zgtf,1),ubound(zgtf,1)
-    zgtf(ioff,j3)=0._jprbt
-  enddo
-enddo
-!$acc end data
-write (0,*) __FILE__, __LINE__; call flush(0)
-#endif
-
 IF(PRESENT(KVSETUV)) THEN
   IVSETUV(:) = KVSETUV(:)
 ELSE
@@ -178,24 +165,10 @@ ENDIF
 CALL GSTATS(158,0)
 
 #ifdef USE_CUDA_AWARE_MPI_EFTDIR
-
-!write (0,*) __FILE__, __LINE__,'; cudaDeviceSynchronize returns ',cudaDeviceSynchronize(); call flush(0)
-
-#ifdef gnarls
-!$acc data present(zgtf)
-!$acc parallel loop collapse(2) 
-do j3=lbound(zgtf,2),ubound(zgtf,2)
-  do ioff=lbound(zgtf,1),ubound(zgtf,1)
-    zgtf(ioff,j3)=0._jprbt
-  enddo
-enddo
-!$acc end data
-#endif
-
-!write (0,*) __FILE__, __LINE__,'; cudaDeviceSynchronize returns ',cudaDeviceSynchronize(); call flush(0)
-
+write (77+MYPROC,*)  __FILE__, __LINE__,': calling trgtol'; call flush(77+MYPROC)
 CALL TRGTOL_CUDAAWARE(ZGTF,KF_FS,KF_GP,KF_SCALARS_G,IVSET,KPTRGP,&
  &PGP,PGPUV,PGP3A,PGP3B,PGP2,LDGW=.TRUE.)
+write (77+MYPROC,*)  __FILE__, __LINE__,': trgtol call complete'; call flush(77+MYPROC)
 #else
 CALL TRGTOL(ZGTF,KF_FS,KF_GP,KF_SCALARS_G,IVSET,KPTRGP,&
  &PGP,PGPUV,PGP3A,PGP3B,PGP2,LDGW=.TRUE.)
@@ -243,7 +216,9 @@ CALL EFOURIER_OUT (ZGTF, KF_FS)
 CALL GSTATS(1640,1)
 CALL GSTATS(106,1)
 
-IF (.NOT. LALLOPERM2) THEN
+! TODO: proper implementation of LALLOPERM
+!IF (.NOT. LALLOPERM2) THEN
+IF (ALLOCATED(ZGTF_PERM)) THEN
   !$acc exit data delete (ZGTF_PERM)
   DEALLOCATE (ZGTF_PERM)
 ENDIF

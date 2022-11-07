@@ -123,10 +123,12 @@ ELSE
         ITAG  = MTAGDISTSP+JFLD+17
         IF(LDIM1_IS_FLD) THEN
           ZFLD(1:KSPEC2,IFLDS)=PSPEC(IFLDS,1:KSPEC2)
+		  !write (*,*) 'sending ',kspec2,' values from ',MYPROC,' to ',NPRCIDS(ISND); call flush(6)
           CALL MPL_SEND(ZFLD(1:KSPEC2,IFLDS),KDEST=NPRCIDS(ISND),KTAG=ITAG,&
            &KMP_TYPE=JP_NON_BLOCKING_STANDARD,KREQUEST=ISENDREQ(JFLD),&
            &CDSTRING='EGATH_SPEC_CONTROL')
         ELSE
+		  !write (*,*) 'sending ',kspec2,' values from ',MYPROC,' to ',NPRCIDS(ISND); call flush(6)
           CALL MPL_SEND(PSPEC(1:KSPEC2,IFLDS),KDEST=NPRCIDS(ISND),KTAG=ITAG,&
            &KMP_TYPE=JP_NON_BLOCKING_STANDARD,KREQUEST=ISENDREQ(JFLD),&
            &CDSTRING='EGATH_SPEC_CONTROL')
@@ -148,6 +150,7 @@ ELSE
           ITAG = MTAGDISTSP+JFLD+17
           ISTA = KPOSSP(JA)
           ISTP = ISTA+ILEN-1
+		  !write (*,*) 'receiving ',ISTP-ISTA+1,' values on ',MYPROC,' from ',NPRCIDS(IRCV); call flush(6)
           CALL MPL_RECV(ZRECV(ISTA:ISTP,IFLDR),KSOURCE=NPRCIDS(IRCV),KTAG=ITAG,&
            &KMP_TYPE=JP_BLOCKING_STANDARD,KOUNT=ILENR, &
            &CDSTRING='EGATH_SPEC_CONTROL')
