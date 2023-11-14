@@ -60,7 +60,7 @@ USE TPM_DIM         ,ONLY : R
 
 USE TPMALD_FFT      ,ONLY : TALD
 USE TPMALD_DIM      ,ONLY : RALD
-!
+USE ABORT_TRANS_MOD,ONLY: ABORT_TRANS
 
 IMPLICIT NONE
 
@@ -75,6 +75,8 @@ REAL(KIND=JPRB) :: ZNORM
 REAL(KIND=JPHOOK) :: ZHOOK_HANDLE
 
 !     ------------------------------------------------------------------
+
+call abort_trans("Error: TL/AD needs FFT992, removed from trans")
 
 IF (LHOOK) CALL DR_HOOK('ELEDIRAD_MOD:ELEDIRAD',0,ZHOOK_HANDLE)
 DO JJ=1,1

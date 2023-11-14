@@ -11,7 +11,6 @@ SAVE
 TYPE ALDFFT_TYPE
 REAL(KIND=JPRB)   ,POINTER :: TRIGSE(:) ! list of trigonometric function values
 INTEGER(KIND=JPIM),POINTER :: NFAXE(:)  ! list of factors of truncation
-LOGICAL                    :: LFFT992=.TRUE.
 END TYPE ALDFFT_TYPE
 
 TYPE(ALDFFT_TYPE),ALLOCATABLE,TARGET :: ALDFFT_RESOL(:)

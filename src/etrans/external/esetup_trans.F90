@@ -187,7 +187,6 @@ IF(LLP1) WRITE(NOUT,*) '=== DEFINING RESOLUTION ',NCUR_RESOL
 G%LREDUCED_GRID = .FALSE.
 D%LGRIDONLY = .FALSE.
 D%LSPLIT = .FALSE.
-TALD%LFFT992=.TRUE. ! Use FFT992 interface for FFTs
 #ifdef WITH_FFTW
 TW%LFFTW=.FALSE. ! Use FFTW interface for FFTs
 #endif
@@ -268,12 +267,6 @@ IF(PRESENT(LDUSEFFTW)) THEN
   TW%LFFTW=LDUSEFFTW
 ENDIF
 #endif
-
-IF(PRESENT(LDUSEFFTW)) THEN
-  TALD%LFFT992=.NOT.LDUSEFFTW
-ELSE
-  TALD%LFFT992=.TRUE.
-ENDIF
 
 !     Setup resolution dependent structures
 !     -------------------------------------
