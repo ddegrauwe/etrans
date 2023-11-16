@@ -31,9 +31,7 @@ ecbuild_list_add_pattern( LIST etrans_hdr
                         )
 						
 foreach ( prec IN LISTS precs )
-
 	ecbuild_add_library( TARGET etrans_${prec}
-
 	  PUBLIC_INCLUDES
 				$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/etrans/interface>
 				$<BUILD_INTERFACE:${CMAKE_Fortran_MODULE_DIRECTORY}>
@@ -48,10 +46,10 @@ foreach ( prec IN LISTS precs )
 	  SOURCES
 				${etrans_src}
 
-      INSTALL_HEADERS_LIST
+     INSTALL_HEADERS_LIST
 				${etrans_hdr}
 				
-      HEADER_DESTINATION include/etrans
+     HEADER_DESTINATION include/etrans
 		TYPE             STATIC
     )
 
