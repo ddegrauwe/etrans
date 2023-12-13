@@ -189,8 +189,8 @@ CALL SETUP_TRANS0(KOUT=NOUT,KERR=NERR,KPRINTLEV=0,KMAX_RESOL=1,&
 ZDX=1.e3
 ZDY=1.e3
 !write (*,*) __FILE__, __LINE__; call flush(6)
-CALL ESETUP_TRANS(KMSMAX=NMSMAX,KSMAX=NSMAX,KDGL=NLAT,KDGUX=NDGUX, &
- & KLOEN=NLOEN,LDSPLIT=LSPLIT,PEXWN=ZDX,PEYWN=ZDY,LDUSEFFTW=.FALSE.)
+CALL ESETUP_TRANS(NMSMAX,NSMAX,NLAT,NDGUX,NLOEN,LSPLIT,PEXWN=ZDX,PEYWN=ZDY,&
+  LDUSEFFTW=.FALSE.)
 
 ! Find distribution properties: total number of waves, number of waves on this proc, total number of gridpoints, gridpoints on this proc
 !write (*,*) __FILE__, __LINE__; call flush(6)
